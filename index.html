@@ -18,7 +18,7 @@
           <p class="hero-copy">韓国語の積み上げを、毎日見える化。</p>
         </div>
 
-        <button id="sampleBtn" class="ghost">＋ Sample</button>
+        <button id="sampleBtn" class="ghost" type="button">＋ Sample</button>
       </div>
 
       <section class="summary-panel">
@@ -33,6 +33,7 @@
             <span>Week</span>
             <strong id="weekTotal">0分</strong>
           </div>
+
           <div>
             <span>Streak</span>
             <strong id="streak">0日</strong>
@@ -41,13 +42,36 @@
       </section>
 
       <section class="quick-actions">
-        <button type="button" class="quick-chip" data-minutes="15" data-material="Duolingo" data-skill="単語" data-content="Duolingo">
+        <button
+          type="button"
+          class="quick-chip"
+          data-minutes="15"
+          data-material="Duolingo"
+          data-skill="単語"
+          data-content="Duolingo"
+        >
           🟢 Duolingo 15m
         </button>
-        <button type="button" class="quick-chip" data-minutes="20" data-material="TOPIK単語" data-skill="単語" data-content="TOPIK単語">
+
+        <button
+          type="button"
+          class="quick-chip"
+          data-minutes="20"
+          data-material="TOPIK単語"
+          data-skill="単語"
+          data-content="TOPIK単語"
+        >
           📚 TOPIK 20m
         </button>
-        <button type="button" class="quick-chip" data-minutes="15" data-material="ChatGPT" data-skill="文法" data-content="韓国語の質問・文法整理">
+
+        <button
+          type="button"
+          class="quick-chip"
+          data-minutes="15"
+          data-material="ChatGPT"
+          data-skill="文法"
+          data-content="韓国語の質問・文法整理"
+        >
           🤖 ChatGPT 15m
         </button>
       </section>
@@ -60,6 +84,7 @@
             <p class="section-label">Quick Log</p>
             <h2>今日の記録</h2>
           </div>
+
           <span class="status-pill">入力して保存</span>
         </div>
 
@@ -102,23 +127,43 @@
                 <option>文化・表現</option>
               </select>
             </label>
-
-            <label>
-              理解度
-              <select id="understanding">
-                <option value="5">😊 完全理解</option>
-                <option value="4">🙂 だいたい理解</option>
-                <option value="3">😕 復習したい</option>
-                <option value="2">😭 まだ難しい</option>
-                <option value="1">🧊 無</option>
-              </select>
-            </label>
-
-            <label class="check">
-              <input type="checkbox" id="review" />
-              復習リストに入れる
-            </label>
           </div>
+
+          <fieldset class="choice-group">
+            <legend>理解度</legend>
+
+            <div class="choice-list">
+              <label class="choice-pill">
+                <input type="radio" name="understanding" value="5" checked />
+                <span>🌟 定着した</span>
+              </label>
+
+              <label class="choice-pill">
+                <input type="radio" name="understanding" value="4" />
+                <span>🙂 だいたいOK</span>
+              </label>
+
+              <label class="choice-pill">
+                <input type="radio" name="understanding" value="3" />
+                <span>🔁 復習したい</span>
+              </label>
+
+              <label class="choice-pill">
+                <input type="radio" name="understanding" value="2" />
+                <span>🌀 まだ曖昧</span>
+              </label>
+
+              <label class="choice-pill">
+                <input type="radio" name="understanding" value="1" />
+                <span>🌱 未理解</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <label class="check">
+            <input type="checkbox" id="review" />
+            復習リストに入れる
+          </label>
 
           <label>
             学習内容
@@ -142,6 +187,7 @@
               <h2>教材別の学習時間</h2>
             </div>
           </div>
+
           <canvas id="materialChart"></canvas>
         </section>
 
@@ -152,6 +198,7 @@
               <h2>スキル別の学習時間</h2>
             </div>
           </div>
+
           <canvas id="skillChart"></canvas>
         </section>
 
@@ -162,6 +209,7 @@
               <h2>最近7日間</h2>
             </div>
           </div>
+
           <div id="calendar" class="calendar"></div>
         </section>
 
@@ -172,6 +220,7 @@
               <h2>要復習リスト</h2>
             </div>
           </div>
+
           <div id="reviewList" class="list empty">まだありません</div>
         </section>
 
@@ -182,6 +231,7 @@
               <h2>ログ一覧</h2>
             </div>
           </div>
+
           <div id="logList" class="list empty">まだ記録がありません</div>
         </section>
       </section>

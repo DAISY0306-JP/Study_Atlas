@@ -20,7 +20,12 @@ function save() {
 }
 
 function fmt(date) {
-  return new Date(date).toISOString().slice(0, 10);
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 }
 
 function monthStart() {
@@ -31,8 +36,10 @@ function monthStart() {
 function weekStart() {
   const d = new Date();
   const day = (d.getDay() + 6) % 7;
+
   d.setDate(d.getDate() - day);
   d.setHours(0, 0, 0, 0);
+
   return d;
 }
 
@@ -57,16 +64,40 @@ function escapeHtml(value = "") {
     .replaceAll("'", "&#039;");
 }
 
+function createId() {
+  if (crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
 function understandingLabel(value) {
   const labels = {
-    5: "😊 完全理解",
-    4: "🙂 だいたい理解",
-    3: "😕 復習したい",
-    2: "😭 まだ難しい",
-    1: "🧊 無"
+    5: "🌟 定着した",
+    4: "🙂 だいたいOK",
+    3: "🔁 復習したい",
+    2: "🌀 まだ曖昧",
+    1: "🌱 未理解"
   };
 
   return labels[value] || "未設定";
+}
+
+function getUnderstandingValue() {
+  return Number(
+    document.querySelector('input[name="understanding"]:checked')?.value || 5
+  );
+}
+
+function resetUnderstanding() {
+  const defaultChoice = document.querySelector(
+    'input[name="understanding"][value="5"]'
+  );
+
+  if (defaultChoice) {
+    defaultChoice.checked = true;
+  }
 }
 
 function getThisMonthLogs() {
@@ -85,12 +116,12 @@ $("logForm").addEventListener("submit", (event) => {
   event.preventDefault();
 
   const newLog = {
-    id: crypto.randomUUID(),
+    id: createId(),
     date: $("date").value,
     minutes: Number($("minutes").value),
     material: $("material").value,
     skill: $("skill").value,
-    understanding: Number($("understanding").value),
+    understanding: getUnderstandingValue(),
     review: $("review").checked,
     content: $("content").value.trim(),
     memo: $("memo").value.trim(),
@@ -101,6 +132,7 @@ $("logForm").addEventListener("submit", (event) => {
 
   event.target.reset();
   $("date").valueAsDate = new Date();
+  resetUnderstanding();
 
   save();
 });
@@ -125,7 +157,7 @@ $("sampleBtn").addEventListener("click", () => {
     d.setDate(d.getDate() - index);
 
     return {
-      id: crypto.randomUUID(),
+      id: createId(),
       date: fmt(d),
       material: sample[0],
       skill: sample[1],
@@ -249,6 +281,7 @@ function calcStreak() {
 function renderCalendar() {
   const now = new Date();
   const days = [];
+  const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   for (let i = 6; i >= 0; i--) {
     const d = new Date();
@@ -271,8 +304,8 @@ function renderCalendar() {
 
       return `
         <div class="day ${isToday ? "today" : ""}">
-          <small>${day.getMonth() + 1}/${day.getDate()}</small>
-          <strong>${total}分</strong>
+          <small>${weekdays[day.getDay()]} ${day.getMonth() + 1}/${day.getDate()}</small>
+          <strong>${total}<span>分</span></strong>
           <div class="bar">
             <i style="width: ${percent}%"></i>
           </div>
@@ -306,6 +339,7 @@ function logCard(log) {
         <span class="log-title">
           ${escapeHtml(log.material)}・${escapeHtml(log.skill)}
         </span>
+
         <span class="level-badge">
           ${understandingLabel(log.understanding)}
         </span>
@@ -386,21 +420,3 @@ function render() {
 }
 
 render();
-
-document.querySelectorAll(".quick-chip").forEach((button) => {
-  button.addEventListener("click", () => {
-    const minutes = button.dataset.minutes;
-    const material = button.dataset.material;
-    const skill = button.dataset.skill;
-    const content = button.dataset.content;
-
-    document.getElementById("minutes").value = minutes;
-    document.getElementById("material").value = material;
-    document.getElementById("skill").value = skill;
-    document.getElementById("content").value = content;
-
-    const formCard = document.querySelector(".quick-record-card");
-    formCard.scrollIntoView({ behavior: "smooth", block: "start" });
-  });
-});
-
