@@ -61,3 +61,21 @@ function logCard(l){
 }
 function delLog(id){ logs=logs.filter(l=>l.id!==id); save(); }
 render();
+
+document.querySelectorAll(".quick-chip").forEach((button) => {
+  button.addEventListener("click", () => {
+    const minutes = button.dataset.minutes;
+    const material = button.dataset.material;
+    const skill = button.dataset.skill;
+    const content = button.dataset.content;
+
+    document.getElementById("minutes").value = minutes;
+    document.getElementById("material").value = material;
+    document.getElementById("skill").value = skill;
+    document.getElementById("content").value = content;
+
+    const formCard = document.querySelector(".quick-record-card");
+    formCard.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+});
+
