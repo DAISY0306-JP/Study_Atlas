@@ -7,76 +7,135 @@
   <link rel="stylesheet" href="css/styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
-  <header class="app-header">
-    <div>
-      <p class="eyebrow">Korean Study Log</p>
-      <h1>韓国語の学習を、見える化する</h1>
-    </div>
-    <button id="sampleBtn" class="ghost">サンプル追加</button>
-  </header>
-
-  <main class="layout">
-    <section class="card form-card">
-      <h2>今日の記録</h2>
-      <form id="logForm">
-        <label>日付<input type="date" id="date" required /></label>
-        <label>学習時間（分）<input type="number" id="minutes" min="1" placeholder="30" required /></label>
-        <label>教材
-          <select id="material">
-            <option>Duolingo</option><option>TOPIK単語</option><option>TOPIK文法</option><option>できる韓国語</option><option>YouTube</option><option>ドラマ</option><option>ChatGPT</option><option>その他</option>
-          </select>
-        </label>
-        <label>スキル
-          <select id="skill">
-            <option>単語</option><option>文法</option><option>読解</option><option>リスニング</option><option>スピーキング</option><option>ライティング</option><option>発音</option><option>文化・表現</option>
-          </select>
-        </label>
-        <label>理解度
-          <select id="understanding">
-            <option value="5">😊 完全理解</option><option value="4">🙂 だいたい理解</option><option value="3">😕 復習したい</option><option value="2">😭 まだ難しい</option><option value="1">🧊 無</option>
-          </select>
-        </label>
-        <label class="check"><input type="checkbox" id="review" /> 復習リストに入れる</label>
-        <label>学習内容<textarea id="content" placeholder="例：지만 / 그런데 / TOPIK単語30個"></textarea></label>
-        <label>メモ<textarea id="memo" placeholder="気づき・質問・Notionに残したいこと"></textarea></label>
-        <button type="submit">記録する</button>
-      </form>
-    </section>
-
-    <section class="dashboard">
-      <div class="stats">
-        <div class="stat card"><span>今月</span><strong id="monthTotal">0分</strong></div>
-        <div class="stat card"><span>今週</span><strong id="weekTotal">0分</strong></div>
-        <div class="stat card"><span>連続</span><strong id="streak">0日</strong></div>
+  <div class="app">
+    <header class="app-header hero">
+      <div>
+        <p class="eyebrow">Korean Study Log</p>
+        <h1>Track your Korean,<br>grow every day.</h1>
       </div>
+      <button id="sampleBtn" class="ghost sample-btn">＋ サンプル追加</button>
+    </header>
 
-      <section class="card">
-        <h2>教材別の学習時間</h2>
-        <canvas id="materialChart"></canvas>
+    <main class="layout">
+      <section class="dashboard">
+        <div class="stats dashboard-cards">
+          <div class="stat card stat-card">
+            <span>今月</span>
+            <strong id="monthTotal">0分</strong>
+          </div>
+
+          <div class="stat card stat-card">
+            <span>今週</span>
+            <strong id="weekTotal">0分</strong>
+          </div>
+
+          <div class="stat card stat-card">
+            <span>連続</span>
+            <strong id="streak">0日</strong>
+          </div>
+        </div>
+
+        <section class="card">
+          <h2>教材別の学習時間</h2>
+          <canvas id="materialChart"></canvas>
+        </section>
+
+        <section class="card">
+          <h2>スキル別の学習時間</h2>
+          <canvas id="skillChart"></canvas>
+        </section>
+
+        <section class="card">
+          <h2>最近7日間</h2>
+          <div id="calendar" class="calendar"></div>
+        </section>
+
+        <section class="card">
+          <h2>要復習リスト</h2>
+          <div id="reviewList" class="list empty">まだありません</div>
+        </section>
+
+        <section class="card">
+          <h2>ログ一覧</h2>
+          <div id="logList" class="list empty">まだ記録がありません</div>
+        </section>
       </section>
 
-      <section class="card">
-        <h2>スキル別の学習時間</h2>
-        <canvas id="skillChart"></canvas>
-      </section>
+      <section class="card form-card">
+        <h2>今日の記録</h2>
 
-      <section class="card">
-        <h2>最近7日間</h2>
-        <div id="calendar" class="calendar"></div>
-      </section>
+        <form id="logForm">
+          <label>
+            日付
+            <input type="date" id="date" required />
+          </label>
 
-      <section class="card">
-        <h2>要復習リスト</h2>
-        <div id="reviewList" class="list empty">まだありません</div>
-      </section>
+          <label>
+            学習時間（分）
+            <input type="number" id="minutes" min="1" placeholder="30" required />
+          </label>
 
-      <section class="card">
-        <h2>ログ一覧</h2>
-        <div id="logList" class="list empty">まだ記録がありません</div>
+          <label>
+            教材
+            <select id="material">
+              <option>Duolingo</option>
+              <option>TOPIK単語</option>
+              <option>TOPIK文法</option>
+              <option>できる韓国語</option>
+              <option>YouTube</option>
+              <option>ドラマ</option>
+              <option>ChatGPT</option>
+              <option>その他</option>
+            </select>
+          </label>
+
+          <label>
+            スキル
+            <select id="skill">
+              <option>単語</option>
+              <option>文法</option>
+              <option>読解</option>
+              <option>リスニング</option>
+              <option>スピーキング</option>
+              <option>ライティング</option>
+              <option>発音</option>
+              <option>文化・表現</option>
+            </select>
+          </label>
+
+          <label>
+            理解度
+            <select id="understanding">
+              <option value="5">😊 完全理解</option>
+              <option value="4">🙂 だいたい理解</option>
+              <option value="3">😕 復習したい</option>
+              <option value="2">😭 まだ難しい</option>
+              <option value="1">🧊 無</option>
+            </select>
+          </label>
+
+          <label class="check">
+            <input type="checkbox" id="review" />
+            復習リストに入れる
+          </label>
+
+          <label>
+            学習内容
+            <textarea id="content" placeholder="例：지만 / 그런데 / TOPIK単語30個"></textarea>
+          </label>
+
+          <label>
+            メモ
+            <textarea id="memo" placeholder="気づき・質問・Notionに残したいこと"></textarea>
+          </label>
+
+          <button type="submit" class="primary">記録する</button>
+        </form>
       </section>
-    </section>
-  </main>
+    </main>
+  </div>
 
   <script src="js/app.js"></script>
 </body>
