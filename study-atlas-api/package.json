@@ -1,0 +1,15 @@
+{
+  "name": "study-atlas-api",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node api/server.js",
+    "start": "node api/server.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "latest",
+    "cors": "latest",
+    "dotenv": "latest",
+    "express": "latest"
+  }
+}
