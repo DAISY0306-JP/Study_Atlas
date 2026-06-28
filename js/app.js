@@ -1,65 +1,390 @@
-const key = 'koreanStudyLogs.v1';
-let logs = JSON.parse(localStorage.getItem(key) || '[]');
-let materialChart, skillChart;
+const key = "koreanStudyLogs.v1";
+
+let logs = JSON.parse(localStorage.getItem(key) || "[]");
+let materialChart;
+let skillChart;
+
 const $ = (id) => document.getElementById(id);
-$('date').valueAsDate = new Date();
 
-function save(){ localStorage.setItem(key, JSON.stringify(logs)); render(); }
-function fmt(d){ return new Date(d).toISOString().slice(0,10); }
-function monthStart(){ const d=new Date(); return new Date(d.getFullYear(),d.getMonth(),1); }
-function weekStart(){ const d=new Date(); const day=(d.getDay()+6)%7; d.setDate(d.getDate()-day); d.setHours(0,0,0,0); return d; }
-function sum(arr){ return arr.reduce((a,b)=>a+Number(b.minutes||0),0); }
-function groupBy(field){ return logs.reduce((acc,l)=>{acc[l[field]]=(acc[l[field]]||0)+Number(l.minutes); return acc;},{}); }
-function understandingLabel(v){ return {5:'😊 完全理解',4:'🙂 だいたい理解',3:'😕 復習したい',2:'😭 まだ難しい',1:'🧊 無'}[v] || v; }
+if ($("date")) {
+  $("date").valueAsDate = new Date();
+}
 
-$('logForm').addEventListener('submit', (e)=>{
-  e.preventDefault();
-  logs.unshift({ id: crypto.randomUUID(), date:$('date').value, minutes:+$('minutes').value, material:$('material').value, skill:$('skill').value, understanding:+$('understanding').value, review:$('review').checked, content:$('content').value.trim(), memo:$('memo').value.trim(), createdAt:new Date().toISOString() });
-  e.target.reset(); $('date').valueAsDate = new Date(); save();
-});
+/* =========================
+   Utilities
+========================= */
 
-$('sampleBtn').addEventListener('click', ()=>{
-  const today=new Date();
-  const samples=[['Duolingo','単語',15,4,'Unit復習・例文音読'],['TOPIK文法','文法',35,3,'지만 / 그런데 / 아무래도'],['ドラマ','リスニング',40,4,'聞き取れた表現メモ'],['TOPIK単語','単語',25,3,'中級単語30個'],['ChatGPT','文化・表現',20,5,'SNS表現のニュアンス確認']];
-  logs = samples.map((s,i)=>{const d=new Date(today); d.setDate(d.getDate()-i); return {id:crypto.randomUUID(),date:fmt(d),material:s[0],skill:s[1],minutes:s[2],understanding:s[3],content:s[4],memo:'',review:s[3]<=3,createdAt:new Date().toISOString()};}).concat(logs);
+function save() {
+  localStorage.setItem(key, JSON.stringify(logs));
+  render();
+}
+
+function fmt(date) {
+  return new Date(date).toISOString().slice(0, 10);
+}
+
+function monthStart() {
+  const d = new Date();
+  return new Date(d.getFullYear(), d.getMonth(), 1);
+}
+
+function weekStart() {
+  const d = new Date();
+  const day = (d.getDay() + 6) % 7;
+  d.setDate(d.getDate() - day);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function sum(arr) {
+  return arr.reduce((total, log) => total + Number(log.minutes || 0), 0);
+}
+
+function groupBy(field, sourceLogs = logs) {
+  return sourceLogs.reduce((acc, log) => {
+    const key = log[field] || "未設定";
+    acc[key] = (acc[key] || 0) + Number(log.minutes || 0);
+    return acc;
+  }, {});
+}
+
+function escapeHtml(value = "") {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function understandingLabel(value) {
+  const labels = {
+    5: "😊 完全理解",
+    4: "🙂 だいたい理解",
+    3: "😕 復習したい",
+    2: "😭 まだ難しい",
+    1: "🧊 無"
+  };
+
+  return labels[value] || "未設定";
+}
+
+function getThisMonthLogs() {
+  return logs.filter((log) => new Date(log.date) >= monthStart());
+}
+
+function getThisWeekLogs() {
+  return logs.filter((log) => new Date(log.date) >= weekStart());
+}
+
+/* =========================
+   Form
+========================= */
+
+$("logForm").addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  const newLog = {
+    id: crypto.randomUUID(),
+    date: $("date").value,
+    minutes: Number($("minutes").value),
+    material: $("material").value,
+    skill: $("skill").value,
+    understanding: Number($("understanding").value),
+    review: $("review").checked,
+    content: $("content").value.trim(),
+    memo: $("memo").value.trim(),
+    createdAt: new Date().toISOString()
+  };
+
+  logs.unshift(newLog);
+
+  event.target.reset();
+  $("date").valueAsDate = new Date();
+
   save();
 });
 
-function renderChart(canvasId, oldChart, grouped, title){
-  const labels=Object.keys(grouped); const data=Object.values(grouped);
+/* =========================
+   Sample data
+========================= */
+
+$("sampleBtn").addEventListener("click", () => {
+  const today = new Date();
+
+  const samples = [
+    ["Duolingo", "単語", 15, 4, "Unit復習・例文音読"],
+    ["TOPIK文法", "文法", 35, 3, "지만 / 그런데 / 아무래도"],
+    ["ドラマ", "リスニング", 40, 4, "聞き取れた表現メモ"],
+    ["TOPIK単語", "単語", 25, 3, "中級単語30個"],
+    ["ChatGPT", "文化・表現", 20, 5, "SNS表現のニュアンス確認"]
+  ];
+
+  const sampleLogs = samples.map((sample, index) => {
+    const d = new Date(today);
+    d.setDate(d.getDate() - index);
+
+    return {
+      id: crypto.randomUUID(),
+      date: fmt(d),
+      material: sample[0],
+      skill: sample[1],
+      minutes: sample[2],
+      understanding: sample[3],
+      content: sample[4],
+      memo: "",
+      review: sample[3] <= 3,
+      createdAt: new Date().toISOString()
+    };
+  });
+
+  logs = sampleLogs.concat(logs);
+  save();
+});
+
+/* =========================
+   Quick chips
+========================= */
+
+document.querySelectorAll(".quick-chip").forEach((button) => {
+  button.addEventListener("click", () => {
+    $("minutes").value = button.dataset.minutes || "";
+    $("material").value = button.dataset.material || "Duolingo";
+    $("skill").value = button.dataset.skill || "単語";
+    $("content").value = button.dataset.content || "";
+
+    const formCard = document.querySelector(".quick-record-card");
+    formCard?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+});
+
+/* =========================
+   Charts
+========================= */
+
+function renderChart(canvasId, oldChart, grouped, label) {
+  const labels = Object.keys(grouped);
+  const data = Object.values(grouped);
+
   oldChart?.destroy();
-  return new Chart($(canvasId), {type:'bar', data:{labels,datasets:[{label:title,data,borderWidth:1,borderRadius:10}]}, options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{callback:v=>v+'分'}}}}});
+
+  const hasData = labels.length > 0;
+
+  return new Chart($(canvasId), {
+    type: "bar",
+    data: {
+      labels: hasData ? labels : ["No data"],
+      datasets: [
+        {
+          label,
+          data: hasData ? data : [0],
+          borderWidth: 0,
+          borderRadius: 14,
+          backgroundColor: "#58CC6C",
+          hoverBackgroundColor: "#35A64A"
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: (context) => `${context.raw}分`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+            display: false
+          },
+          ticks: {
+            color: "#6B7C6B",
+            font: {
+              weight: "700"
+            }
+          }
+        },
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: "rgba(213, 239, 217, 0.8)"
+          },
+          ticks: {
+            color: "#6B7C6B",
+            callback: (value) => `${value}分`
+          }
+        }
+      }
+    }
+  });
 }
 
-function calcStreak(){
-  const dates = new Set(logs.map(l=>l.date)); let streak=0; const d=new Date();
-  while(dates.has(fmt(d))){ streak++; d.setDate(d.getDate()-1); }
+/* =========================
+   Streak
+========================= */
+
+function calcStreak() {
+  const dates = new Set(logs.map((log) => log.date));
+  let streak = 0;
+  const d = new Date();
+
+  while (dates.has(fmt(d))) {
+    streak++;
+    d.setDate(d.getDate() - 1);
+  }
+
   return streak;
 }
 
-function render(){
-  const now=new Date();
-  $('monthTotal').textContent = sum(logs.filter(l=>new Date(l.date)>=monthStart())) + '分';
-  $('weekTotal').textContent = sum(logs.filter(l=>new Date(l.date)>=weekStart())) + '分';
-  $('streak').textContent = calcStreak() + '日';
-  materialChart = renderChart('materialChart', materialChart, groupBy('material'), '学習時間');
-  skillChart = renderChart('skillChart', skillChart, groupBy('skill'), '学習時間');
+/* =========================
+   Calendar
+========================= */
 
-  const days=[]; for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(now.getDate()-i); days.push(d); }
-  const maxDay=Math.max(1,...days.map(d=>sum(logs.filter(l=>l.date===fmt(d)))));
-  $('calendar').innerHTML = days.map(d=>{ const total=sum(logs.filter(l=>l.date===fmt(d))); const isToday=fmt(d)===fmt(now); return `<div class="day ${isToday?'today':''}"><small>${d.getMonth()+1}/${d.getDate()}</small><strong>${total}分</strong><div class="bar"><i style="width:${Math.min(100,total/maxDay*100)}%"></i></div></div>`; }).join('');
+function renderCalendar() {
+  const now = new Date();
+  const days = [];
 
-  const reviews=logs.filter(l=>l.review || l.understanding<=3).slice(0,5);
-  $('reviewList').className = 'list' + (reviews.length?'':' empty');
-  $('reviewList').innerHTML = reviews.length ? reviews.map(logCard).join('') : 'まだありません';
-  $('logList').className = 'list' + (logs.length?'':' empty');
-  $('logList').innerHTML = logs.length ? logs.slice(0,20).map(logCard).join('') : 'まだ記録がありません';
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(now.getDate() - i);
+    days.push(d);
+  }
+
+  const dailyTotals = days.map((day) => {
+    return sum(logs.filter((log) => log.date === fmt(day)));
+  });
+
+  const maxDay = Math.max(1, ...dailyTotals);
+
+  $("calendar").innerHTML = days
+    .map((day, index) => {
+      const dateKey = fmt(day);
+      const total = dailyTotals[index];
+      const isToday = dateKey === fmt(now);
+      const percent = Math.min(100, (total / maxDay) * 100);
+
+      return `
+        <div class="day ${isToday ? "today" : ""}">
+          <small>${day.getMonth() + 1}/${day.getDate()}</small>
+          <strong>${total}分</strong>
+          <div class="bar">
+            <i style="width: ${percent}%"></i>
+          </div>
+        </div>
+      `;
+    })
+    .join("");
 }
 
-function logCard(l){
-  return `<article class="log"><div class="log-head"><span>${l.date} / ${l.minutes}分</span><button class="delete" onclick="delLog('${l.id}')">削除</button></div><div class="tags"><span class="tag">${l.material}</span><span class="tag">${l.skill}</span><span class="tag">${understandingLabel(l.understanding)}</span></div><div>${l.content || '内容なし'}</div>${l.memo?`<small>${l.memo}</small>`:''}</article>`;
+/* =========================
+   Log cards
+========================= */
+
+function logCard(log) {
+  const needsReview = log.review || Number(log.understanding) <= 3;
+
+  return `
+    <article class="log-item ${needsReview ? "needs-review" : ""}">
+      <div class="log-item-header">
+        <div class="log-date">
+          <span class="log-chip">${escapeHtml(log.date)}</span>
+          <span class="log-chip">${escapeHtml(log.minutes)}分</span>
+        </div>
+
+        <button class="delete-btn" type="button" data-delete-log="${escapeHtml(log.id)}">
+          削除
+        </button>
+      </div>
+
+      <div class="log-main">
+        <span class="log-title">
+          ${escapeHtml(log.material)}・${escapeHtml(log.skill)}
+        </span>
+        <span class="level-badge">
+          ${understandingLabel(log.understanding)}
+        </span>
+      </div>
+
+      <div class="log-content">
+        ${escapeHtml(log.content || "内容なし")}
+      </div>
+
+      ${
+        log.memo
+          ? `<div class="log-memo">${escapeHtml(log.memo)}</div>`
+          : ""
+      }
+    </article>
+  `;
 }
-function delLog(id){ logs=logs.filter(l=>l.id!==id); save(); }
+
+function renderLogList() {
+  const reviewLogs = logs
+    .filter((log) => log.review || Number(log.understanding) <= 3)
+    .slice(0, 5);
+
+  $("reviewList").className = `list ${reviewLogs.length ? "" : "empty"}`;
+  $("reviewList").innerHTML = reviewLogs.length
+    ? reviewLogs.map(logCard).join("")
+    : "まだありません";
+
+  $("logList").className = `list ${logs.length ? "" : "empty"}`;
+  $("logList").innerHTML = logs.length
+    ? logs.slice(0, 20).map(logCard).join("")
+    : "まだ記録がありません";
+}
+
+/* =========================
+   Delete log
+========================= */
+
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-delete-log]");
+
+  if (!button) return;
+
+  const id = button.dataset.deleteLog;
+  logs = logs.filter((log) => log.id !== id);
+
+  save();
+});
+
+/* =========================
+   Render
+========================= */
+
+function render() {
+  const thisMonthLogs = getThisMonthLogs();
+  const thisWeekLogs = getThisWeekLogs();
+
+  $("monthTotal").textContent = `${sum(thisMonthLogs)}分`;
+  $("weekTotal").textContent = `${sum(thisWeekLogs)}分`;
+  $("streak").textContent = `${calcStreak()}日`;
+
+  materialChart = renderChart(
+    "materialChart",
+    materialChart,
+    groupBy("material", thisMonthLogs),
+    "学習時間"
+  );
+
+  skillChart = renderChart(
+    "skillChart",
+    skillChart,
+    groupBy("skill", thisMonthLogs),
+    "学習時間"
+  );
+
+  renderCalendar();
+  renderLogList();
+}
+
 render();
 
 document.querySelectorAll(".quick-chip").forEach((button) => {
