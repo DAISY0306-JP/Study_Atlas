@@ -10,9 +10,7 @@ if ($("date")) {
   $("date").valueAsDate = new Date();
 }
 
-/* =========================
-   Utilities
-========================= */
+/* Utilities */
 
 function save() {
   localStorage.setItem(key, JSON.stringify(logs));
@@ -108,9 +106,7 @@ function getThisWeekLogs() {
   return logs.filter((log) => new Date(log.date) >= weekStart());
 }
 
-/* =========================
-   Form
-========================= */
+/* Form */
 
 $("logForm").addEventListener("submit", (event) => {
   event.preventDefault();
@@ -137,9 +133,7 @@ $("logForm").addEventListener("submit", (event) => {
   save();
 });
 
-/* =========================
-   Sample data
-========================= */
+/* Sample data */
 
 $("sampleBtn").addEventListener("click", () => {
   const today = new Date();
@@ -174,9 +168,7 @@ $("sampleBtn").addEventListener("click", () => {
   save();
 });
 
-/* =========================
-   Quick chips
-========================= */
+/* Quick chips */
 
 document.querySelectorAll(".quick-chip").forEach((button) => {
   button.addEventListener("click", () => {
@@ -190,9 +182,7 @@ document.querySelectorAll(".quick-chip").forEach((button) => {
   });
 });
 
-/* =========================
-   Charts
-========================= */
+/* Charts */
 
 function renderChart(canvasId, oldChart, grouped, label) {
   const labels = Object.keys(grouped);
@@ -257,9 +247,7 @@ function renderChart(canvasId, oldChart, grouped, label) {
   });
 }
 
-/* =========================
-   Streak
-========================= */
+/* Streak */
 
 function calcStreak() {
   const dates = new Set(logs.map((log) => log.date));
@@ -274,9 +262,7 @@ function calcStreak() {
   return streak;
 }
 
-/* =========================
-   Calendar
-========================= */
+/* Calendar */
 
 function renderCalendar() {
   const now = new Date();
@@ -315,9 +301,7 @@ function renderCalendar() {
     .join("");
 }
 
-/* =========================
-   Log cards
-========================= */
+/* Log cards */
 
 function logCard(log) {
   const needsReview = log.review || Number(log.understanding) <= 3;
@@ -374,9 +358,7 @@ function renderLogList() {
     : "まだ記録がありません";
 }
 
-/* =========================
-   Delete log
-========================= */
+/* Delete log */
 
 document.addEventListener("click", (event) => {
   const button = event.target.closest("[data-delete-log]");
@@ -389,9 +371,7 @@ document.addEventListener("click", (event) => {
   save();
 });
 
-/* =========================
-   Render
-========================= */
+/* Render */
 
 function render() {
   const thisMonthLogs = getThisMonthLogs();

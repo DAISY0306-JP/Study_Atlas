@@ -51,9 +51,7 @@ body {
   letter-spacing: 0.01em;
 }
 
-/* =========================
-   Layout
-========================= */
+/* Layout */
 
 .app {
   width: min(1080px, 100%);
@@ -73,9 +71,7 @@ body {
   gap: 18px;
 }
 
-/* =========================
-   Hero
-========================= */
+/* Hero */
 
 .app-hero {
   margin-bottom: 22px;
@@ -113,9 +109,7 @@ h1 {
   font-weight: 700;
 }
 
-/* =========================
-   Summary panel
-========================= */
+/* Summary */
 
 .summary-panel {
   display: grid;
@@ -184,9 +178,7 @@ h1 {
   letter-spacing: -0.04em;
 }
 
-/* =========================
-   Quick actions
-========================= */
+/* Quick actions */
 
 .quick-actions {
   display: flex;
@@ -207,6 +199,7 @@ h1 {
   font-weight: 900;
   white-space: nowrap;
   cursor: pointer;
+  transition: 0.18s ease;
 }
 
 .quick-chip {
@@ -229,9 +222,7 @@ h1 {
   transform: translateY(-1px);
 }
 
-/* =========================
-   Cards
-========================= */
+/* Cards */
 
 .card {
   background: rgba(255, 255, 255, 0.92);
@@ -275,9 +266,7 @@ h2 {
   white-space: nowrap;
 }
 
-/* =========================
-   Form
-========================= */
+/* Form */
 
 form {
   display: grid;
@@ -367,6 +356,7 @@ form button[type="submit"] {
   font-size: 16px;
   box-shadow: 0 14px 28px rgba(88, 204, 108, 0.28);
   cursor: pointer;
+  transition: 0.18s ease;
 }
 
 .primary:hover,
@@ -374,18 +364,18 @@ form button[type="submit"]:hover {
   background: var(--primary-dark);
 }
 
-/* =========================
-   Understanding choices
-========================= */
+/* Understanding choices */
 
 .choice-group {
-  border: none;
-  padding: 0;
   margin: 0;
+  padding: 0;
+  border: none;
+  min-inline-size: 0;
 }
 
 .choice-group legend {
-  margin-bottom: 8px;
+  margin: 0 0 10px;
+  padding: 0;
   color: var(--muted);
   font-size: 13px;
   font-weight: 900;
@@ -394,7 +384,7 @@ form button[type="submit"]:hover {
 .choice-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
 }
 
 .choice-pill {
@@ -402,25 +392,36 @@ form button[type="submit"]:hover {
   cursor: pointer;
 }
 
-.choice-pill input {
-  display: none;
+.choice-pill input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
 }
 
 .choice-pill span {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   min-height: 38px;
-  border: 1px solid var(--border);
+  padding: 8px 12px;
   border-radius: 999px;
+  border: 1px solid var(--border);
   background: var(--soft);
   color: var(--muted);
-  padding: 8px 12px;
   font-size: 13px;
   font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
   transition: 0.18s ease;
 }
 
-.choice-pill input:checked + span {
+.choice-pill input[type="radio"]:checked + span {
   background: var(--primary);
   border-color: var(--primary);
   color: #fff;
@@ -431,17 +432,13 @@ form button[type="submit"]:hover {
   transform: translateY(-1px);
 }
 
-/* =========================
-   Charts
-========================= */
+/* Charts */
 
 .chart-card canvas {
   max-height: 260px;
 }
 
-/* =========================
-   Calendar
-========================= */
+/* Calendar */
 
 .calendar {
   display: flex;
@@ -523,9 +520,7 @@ form button[type="submit"]:hover {
   background: #fff;
 }
 
-/* =========================
-   Review / History lists
-========================= */
+/* Review / History lists */
 
 .list {
   display: grid;
@@ -541,34 +536,6 @@ form button[type="submit"]:hover {
   border-radius: 18px;
   padding: 16px;
   font-weight: 800;
-}
-
-.list > div:not(.empty) {
-  display: grid;
-  gap: 8px;
-  padding: 14px;
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fff9 100%);
-  color: var(--text);
-  line-height: 1.55;
-}
-
-.list button {
-  width: fit-content;
-  border: none;
-  border-radius: 999px;
-  background: #eef7f0;
-  color: var(--muted);
-  padding: 5px 9px;
-  font-size: 12px;
-  font-weight: 900;
-  cursor: pointer;
-}
-
-.list button:hover {
-  background: var(--danger-bg);
-  color: var(--danger);
 }
 
 .log-item {
@@ -618,6 +585,7 @@ form button[type="submit"]:hover {
   padding: 6px 9px;
   font-size: 12px;
   font-weight: 900;
+  cursor: pointer;
 }
 
 .delete-btn:hover {
@@ -669,9 +637,7 @@ form button[type="submit"]:hover {
   margin-bottom: 0;
 }
 
-/* =========================
-   Responsive
-========================= */
+/* Responsive */
 
 @media (max-width: 820px) {
   .app-main {
@@ -738,8 +704,9 @@ form button[type="submit"]:hover {
   }
 
   .choice-pill span {
+    min-height: 36px;
+    padding: 7px 10px;
     font-size: 12px;
-    padding: 8px 10px;
   }
 
   .log-title {
