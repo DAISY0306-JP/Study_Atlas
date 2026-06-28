@@ -10,116 +10,115 @@
 
 <body>
   <div class="app">
-    <header class="app-header hero">
-      <div>
-        <p class="eyebrow">Korean Study Log</p>
-        <h1>Track your Korean,<br>grow every day.</h1>
+    <header class="app-hero">
+      <div class="hero-top">
+        <div>
+          <p class="eyebrow">Korean Study Log</p>
+          <h1>Track. Visualize. Grow.</h1>
+          <p class="hero-copy">韓国語の積み上げを、毎日見える化。</p>
+        </div>
+
+        <button id="sampleBtn" class="ghost">＋ Sample</button>
       </div>
-      <button id="sampleBtn" class="ghost sample-btn">＋ サンプル追加</button>
-    </header>
 
-    <main class="layout">
-      <section class="dashboard">
-        <div class="stats dashboard-cards">
-          <div class="stat card stat-card">
-            <span>今月</span>
-            <strong id="monthTotal">0分</strong>
-          </div>
+      <section class="summary-panel">
+        <div class="summary-main">
+          <span class="summary-label">This month</span>
+          <strong id="monthTotal">0分</strong>
+          <p>今月の韓国語学習</p>
+        </div>
 
-          <div class="stat card stat-card">
-            <span>今週</span>
+        <div class="summary-side">
+          <div>
+            <span>Week</span>
             <strong id="weekTotal">0分</strong>
           </div>
-
-          <div class="stat card stat-card">
-            <span>連続</span>
+          <div>
+            <span>Streak</span>
             <strong id="streak">0日</strong>
           </div>
         </div>
-
-        <section class="card">
-          <h2>教材別の学習時間</h2>
-          <canvas id="materialChart"></canvas>
-        </section>
-
-        <section class="card">
-          <h2>スキル別の学習時間</h2>
-          <canvas id="skillChart"></canvas>
-        </section>
-
-        <section class="card">
-          <h2>最近7日間</h2>
-          <div id="calendar" class="calendar"></div>
-        </section>
-
-        <section class="card">
-          <h2>要復習リスト</h2>
-          <div id="reviewList" class="list empty">まだありません</div>
-        </section>
-
-        <section class="card">
-          <h2>ログ一覧</h2>
-          <div id="logList" class="list empty">まだ記録がありません</div>
-        </section>
       </section>
 
-      <section class="card form-card">
-        <h2>今日の記録</h2>
+      <section class="quick-actions">
+        <button type="button" class="quick-chip" data-minutes="15" data-material="Duolingo" data-skill="単語" data-content="Duolingo">
+          🟢 Duolingo 15m
+        </button>
+        <button type="button" class="quick-chip" data-minutes="20" data-material="TOPIK単語" data-skill="単語" data-content="TOPIK単語">
+          📚 TOPIK 20m
+        </button>
+        <button type="button" class="quick-chip" data-minutes="15" data-material="ChatGPT" data-skill="文法" data-content="韓国語の質問・文法整理">
+          🤖 ChatGPT 15m
+        </button>
+      </section>
+    </header>
+
+    <main class="app-main">
+      <section class="card quick-record-card">
+        <div class="section-head">
+          <div>
+            <p class="section-label">Quick Log</p>
+            <h2>今日の記録</h2>
+          </div>
+          <span class="status-pill">入力して保存</span>
+        </div>
 
         <form id="logForm">
-          <label>
-            日付
-            <input type="date" id="date" required />
-          </label>
+          <div class="form-grid">
+            <label>
+              日付
+              <input type="date" id="date" required />
+            </label>
 
-          <label>
-            学習時間（分）
-            <input type="number" id="minutes" min="1" placeholder="30" required />
-          </label>
+            <label>
+              学習時間（分）
+              <input type="number" id="minutes" min="1" placeholder="30" required />
+            </label>
 
-          <label>
-            教材
-            <select id="material">
-              <option>Duolingo</option>
-              <option>TOPIK単語</option>
-              <option>TOPIK文法</option>
-              <option>できる韓国語</option>
-              <option>YouTube</option>
-              <option>ドラマ</option>
-              <option>ChatGPT</option>
-              <option>その他</option>
-            </select>
-          </label>
+            <label>
+              教材
+              <select id="material">
+                <option>Duolingo</option>
+                <option>TOPIK単語</option>
+                <option>TOPIK文法</option>
+                <option>できる韓国語</option>
+                <option>YouTube</option>
+                <option>ドラマ</option>
+                <option>ChatGPT</option>
+                <option>その他</option>
+              </select>
+            </label>
 
-          <label>
-            スキル
-            <select id="skill">
-              <option>単語</option>
-              <option>文法</option>
-              <option>読解</option>
-              <option>リスニング</option>
-              <option>スピーキング</option>
-              <option>ライティング</option>
-              <option>発音</option>
-              <option>文化・表現</option>
-            </select>
-          </label>
+            <label>
+              スキル
+              <select id="skill">
+                <option>単語</option>
+                <option>文法</option>
+                <option>読解</option>
+                <option>リスニング</option>
+                <option>スピーキング</option>
+                <option>ライティング</option>
+                <option>発音</option>
+                <option>文化・表現</option>
+              </select>
+            </label>
 
-          <label>
-            理解度
-            <select id="understanding">
-              <option value="5">😊 完全理解</option>
-              <option value="4">🙂 だいたい理解</option>
-              <option value="3">😕 復習したい</option>
-              <option value="2">😭 まだ難しい</option>
-              <option value="1">🧊 無</option>
-            </select>
-          </label>
+            <label>
+              理解度
+              <select id="understanding">
+                <option value="5">😊 完全理解</option>
+                <option value="4">🙂 だいたい理解</option>
+                <option value="3">😕 復習したい</option>
+                <option value="2">😭 まだ難しい</option>
+                <option value="1">🧊 無</option>
+              </select>
+            </label>
 
-          <label class="check">
-            <input type="checkbox" id="review" />
-            復習リストに入れる
-          </label>
+            <label class="check">
+              <input type="checkbox" id="review" />
+              復習リストに入れる
+            </label>
+          </div>
 
           <label>
             学習内容
@@ -131,8 +130,60 @@
             <textarea id="memo" placeholder="気づき・質問・Notionに残したいこと"></textarea>
           </label>
 
-          <button type="submit" class="primary">記録する</button>
+          <button type="submit" class="primary">＋ 記録する</button>
         </form>
+      </section>
+
+      <section class="insight-grid">
+        <section class="card chart-card">
+          <div class="section-head">
+            <div>
+              <p class="section-label">Materials</p>
+              <h2>教材別の学習時間</h2>
+            </div>
+          </div>
+          <canvas id="materialChart"></canvas>
+        </section>
+
+        <section class="card chart-card">
+          <div class="section-head">
+            <div>
+              <p class="section-label">Skills</p>
+              <h2>スキル別の学習時間</h2>
+            </div>
+          </div>
+          <canvas id="skillChart"></canvas>
+        </section>
+
+        <section class="card">
+          <div class="section-head">
+            <div>
+              <p class="section-label">Last 7 days</p>
+              <h2>最近7日間</h2>
+            </div>
+          </div>
+          <div id="calendar" class="calendar"></div>
+        </section>
+
+        <section class="card">
+          <div class="section-head">
+            <div>
+              <p class="section-label">Review</p>
+              <h2>要復習リスト</h2>
+            </div>
+          </div>
+          <div id="reviewList" class="list empty">まだありません</div>
+        </section>
+
+        <section class="card log-card">
+          <div class="section-head">
+            <div>
+              <p class="section-label">History</p>
+              <h2>ログ一覧</h2>
+            </div>
+          </div>
+          <div id="logList" class="list empty">まだ記録がありません</div>
+        </section>
       </section>
     </main>
   </div>
