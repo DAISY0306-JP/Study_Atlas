@@ -164,6 +164,7 @@ $("logForm").addEventListener("submit", async (event) => {
     event.target.reset();
     $("date").valueAsDate = new Date();
     resetUnderstanding();
+    document.querySelector(".quick-record-card").open = false;
 
     await refreshLogs();
   } catch (err) {
@@ -209,17 +210,41 @@ $("sampleBtn").addEventListener("click", async () => {
   }
 });
 
-/* Quick chips */
+/* Quick tiles (one-tap record) */
 
-document.querySelectorAll(".quick-chip").forEach((button) => {
-  button.addEventListener("click", () => {
-    $("minutes").value = button.dataset.minutes || "";
-    $("material").value = button.dataset.material || "Duolingo";
-    $("skill").value = button.dataset.skill || "単語";
-    $("content").value = button.dataset.content || "";
+document.querySelectorAll(".quick-tile").forEach((button) => {
+  const originalContent = button.innerHTML;
 
-    const formCard = document.querySelector(".quick-record-card");
-    formCard?.scrollIntoView({ behavior: "smooth", block: "start" });
+  button.addEventListener("click", async () => {
+    if (button.disabled) return;
+
+    button.disabled = true;
+
+    try {
+      await createLog({
+        studied_at: fmt(new Date()),
+        duration_minutes: Number(button.dataset.minutes),
+        material: button.dataset.material,
+        skill: button.dataset.skill,
+        understanding: 5,
+        needs_review: false,
+        content: button.dataset.content || "",
+        memo: ""
+      });
+
+      button.innerHTML = '<span class="quick-tile-check">✓ 記録しました</span>';
+      await refreshLogs();
+
+      setTimeout(() => {
+        button.innerHTML = originalContent;
+        button.disabled = false;
+      }, 1200);
+    } catch (err) {
+      console.error(err);
+      alert("記録の保存に失敗しました。");
+      button.innerHTML = originalContent;
+      button.disabled = false;
+    }
   });
 });
 

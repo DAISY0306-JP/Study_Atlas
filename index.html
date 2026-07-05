@@ -82,50 +82,58 @@
           </div>
         </section>
 
-        <section class="quick-actions">
+        <section class="quick-actions-grid">
           <button
             type="button"
-            class="quick-chip"
+            class="quick-tile"
             data-minutes="15"
             data-material="Duolingo"
             data-skill="単語"
             data-content="Duolingo"
           >
-            🟢 Duolingo 15m
+            <span class="quick-tile-body">
+              <span class="quick-tile-icon">🟢</span>
+              <span class="quick-tile-label">Duolingo</span>
+              <span class="quick-tile-meta">15分・単語</span>
+            </span>
           </button>
 
           <button
             type="button"
-            class="quick-chip"
+            class="quick-tile"
             data-minutes="20"
             data-material="TOPIK単語"
             data-skill="単語"
             data-content="TOPIK単語"
           >
-            📚 TOPIK 20m
+            <span class="quick-tile-body">
+              <span class="quick-tile-icon">📚</span>
+              <span class="quick-tile-label">TOPIK単語</span>
+              <span class="quick-tile-meta">20分・単語</span>
+            </span>
           </button>
 
           <button
             type="button"
-            class="quick-chip"
+            class="quick-tile"
             data-minutes="15"
             data-material="ChatGPT"
             data-skill="文法"
             data-content="韓国語の質問・文法整理"
           >
-            🤖 ChatGPT 15m
+            <span class="quick-tile-body">
+              <span class="quick-tile-icon">🤖</span>
+              <span class="quick-tile-label">ChatGPT</span>
+              <span class="quick-tile-meta">15分・文法</span>
+            </span>
           </button>
         </section>
 
-        <section class="card quick-record-card">
-          <div class="section-head">
-            <div>
-              <p class="section-label">Quick Log</p>
-              <h2>今日の記録</h2>
-            </div>
-
-            <span class="status-pill">入力して保存</span>
-          </div>
+        <details class="card quick-record-card">
+          <summary class="quick-record-summary">
+            <span>＋ カスタムで記録する</span>
+            <span class="chevron">›</span>
+          </summary>
 
           <form id="logForm">
             <div class="form-grid">
@@ -216,7 +224,7 @@
 
             <button type="submit" class="primary">＋ 記録する</button>
           </form>
-        </section>
+        </details>
       </section>
 
       <section id="view-dashboard" class="tab-view is-hidden-mobile">
