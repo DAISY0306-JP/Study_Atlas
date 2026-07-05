@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Korean Study Log</title>
+  <title>Study Atlas</title>
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#58cc6c" />
@@ -21,8 +21,14 @@
 <body>
   <div id="authScreen" class="auth-screen" hidden>
     <div class="auth-card">
-      <p class="eyebrow">Korean Study Log</p>
-      <h1>Sign in</h1>
+      <div class="brand">
+        <img src="icons/icon-192.png" alt="" class="brand-icon" />
+        <div>
+          <p class="brand-name">Study Atlas</p>
+          <p class="brand-sub">Korean Study Log</p>
+        </div>
+      </div>
+
       <p class="hero-copy">学習ログはSupabaseアカウントに保存されます。</p>
 
       <label>
@@ -47,10 +53,12 @@
   <div class="app" hidden>
     <header class="app-hero">
       <div class="hero-top">
-        <div>
-          <p class="eyebrow">Korean Study Log</p>
-          <h1>Track. Visualize. Grow.</h1>
-          <p class="hero-copy">韓国語の積み上げを、毎日見える化。</p>
+        <div class="brand">
+          <img src="icons/icon-192.png" alt="" class="brand-icon" />
+          <div>
+            <p class="brand-name">Study Atlas</p>
+            <p class="brand-sub">Korean Study Log</p>
+          </div>
         </div>
 
         <div class="hero-actions">
@@ -61,7 +69,43 @@
     </header>
 
     <main class="app-main">
-      <section id="view-record" class="tab-view">
+      <section id="view-home" class="tab-view">
+        <section class="home-hero card">
+          <p class="home-greeting" id="homeGreeting">おかえりなさい</p>
+
+          <div class="home-streak">
+            <span class="home-streak-icon">🔥</span>
+            <div>
+              <strong id="homeStreak">0日</strong>
+              <span>連続記録中</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="home-stats">
+          <div class="home-stat-card">
+            <span class="home-stat-label">今日</span>
+            <strong id="homeToday">0分</strong>
+          </div>
+
+          <div class="home-stat-card">
+            <span class="home-stat-label">今週</span>
+            <strong id="homeWeek">0分</strong>
+          </div>
+
+          <div class="home-stat-card">
+            <span class="home-stat-label">今月</span>
+            <strong id="homeMonth">0分</strong>
+          </div>
+        </section>
+
+        <section class="card home-message-card">
+          <p id="homeMessage">今日の学習を記録しましょう！</p>
+          <button type="button" class="primary" id="homeRecordBtn">＋ 記録する</button>
+        </section>
+      </section>
+
+      <section id="view-record" class="tab-view is-hidden-mobile">
         <section class="summary-panel">
           <div class="summary-main">
             <span class="summary-label">This month</span>
@@ -88,13 +132,13 @@
             class="quick-tile"
             data-minutes="15"
             data-material="Duolingo"
-            data-skill="単語"
+            data-skill="全体"
             data-content="Duolingo"
           >
             <span class="quick-tile-body">
               <span class="quick-tile-icon">🟢</span>
               <span class="quick-tile-label">Duolingo</span>
-              <span class="quick-tile-meta">15分・単語</span>
+              <span class="quick-tile-meta">15分・全体</span>
             </span>
           </button>
 
@@ -172,6 +216,7 @@
                   <option>ライティング</option>
                   <option>発音</option>
                   <option>文化・表現</option>
+                  <option>全体</option>
                 </select>
               </label>
             </div>
@@ -228,67 +273,84 @@
       </section>
 
       <section id="view-dashboard" class="tab-view is-hidden-mobile">
+        <div class="segmented-control">
+          <button type="button" class="segment-btn active" data-subview="sub-charts">グラフ</button>
+          <button type="button" class="segment-btn" data-subview="sub-calendar">カレンダー</button>
+          <button type="button" class="segment-btn" data-subview="sub-history">履歴</button>
+        </div>
+
         <section class="insight-grid">
-          <section class="card chart-card">
-            <div class="section-head">
-              <div>
-                <p class="section-label">Materials</p>
-                <h2>教材別の学習時間</h2>
+          <div id="sub-charts" class="dash-subview">
+            <section class="card chart-card">
+              <div class="section-head">
+                <div>
+                  <p class="section-label">Materials</p>
+                  <h2>教材別の学習時間</h2>
+                </div>
               </div>
-            </div>
 
-            <canvas id="materialChart"></canvas>
-          </section>
+              <canvas id="materialChart"></canvas>
+            </section>
 
-          <section class="card chart-card">
-            <div class="section-head">
-              <div>
-                <p class="section-label">Skills</p>
-                <h2>スキル別の学習時間</h2>
+            <section class="card chart-card">
+              <div class="section-head">
+                <div>
+                  <p class="section-label">Skills</p>
+                  <h2>スキル別の学習時間</h2>
+                </div>
               </div>
-            </div>
 
-            <canvas id="skillChart"></canvas>
-          </section>
+              <canvas id="skillChart"></canvas>
+            </section>
+          </div>
 
-          <section class="card">
-            <div class="section-head">
-              <div>
-                <p class="section-label">Last 7 days</p>
-                <h2>最近7日間</h2>
+          <div id="sub-calendar" class="dash-subview is-hidden-mobile">
+            <section class="card">
+              <div class="section-head">
+                <div>
+                  <p class="section-label">Last 7 days</p>
+                  <h2>最近7日間</h2>
+                </div>
               </div>
-            </div>
 
-            <div id="calendar" class="calendar"></div>
-          </section>
+              <div id="calendar" class="calendar"></div>
+            </section>
+          </div>
 
-          <section class="card">
-            <div class="section-head">
-              <div>
-                <p class="section-label">Review</p>
-                <h2>要復習リスト</h2>
+          <div id="sub-history" class="dash-subview is-hidden-mobile">
+            <section class="card">
+              <div class="section-head">
+                <div>
+                  <p class="section-label">Review</p>
+                  <h2>要復習リスト</h2>
+                </div>
               </div>
-            </div>
 
-            <div id="reviewList" class="list empty">まだありません</div>
-          </section>
+              <div id="reviewList" class="list empty">まだありません</div>
+            </section>
 
-          <section class="card log-card">
-            <div class="section-head">
-              <div>
-                <p class="section-label">History</p>
-                <h2>ログ一覧</h2>
+            <section class="card log-card">
+              <div class="section-head">
+                <div>
+                  <p class="section-label">History</p>
+                  <h2>ログ一覧</h2>
+                </div>
               </div>
-            </div>
 
-            <div id="logList" class="list empty">まだ記録がありません</div>
-          </section>
+              <div id="logList" class="list empty">まだ記録がありません</div>
+            </section>
+          </div>
         </section>
       </section>
     </main>
 
     <nav class="tab-bar">
-      <button type="button" class="tab-btn active" data-view="view-record">
+      <button type="button" class="tab-btn active" data-view="view-home">
+        <span class="tab-icon">🏠</span>
+        <span>ホーム</span>
+      </button>
+
+      <button type="button" class="tab-btn" data-view="view-record">
         <span class="tab-icon">✏️</span>
         <span>記録</span>
       </button>

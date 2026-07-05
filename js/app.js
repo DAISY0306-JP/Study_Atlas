@@ -91,6 +91,11 @@ function getThisWeekLogs() {
   return logs.filter((log) => new Date(log.date) >= weekStart());
 }
 
+function getTodayLogs() {
+  const today = fmt(new Date());
+  return logs.filter((log) => log.date === today);
+}
+
 /* API */
 
 function fromApi(row) {
@@ -253,16 +258,37 @@ document.querySelectorAll(".quick-tile").forEach((button) => {
 const tabButtons = document.querySelectorAll(".tab-btn");
 const tabViews = document.querySelectorAll(".tab-view");
 
+function switchTab(target) {
+  tabButtons.forEach((btn) => btn.classList.toggle("active", btn.dataset.view === target));
+  tabViews.forEach((view) => view.classList.toggle("is-hidden-mobile", view.id !== target));
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+
+  if (target === "view-dashboard") {
+    materialChart?.resize();
+    skillChart?.resize();
+  }
+}
+
 tabButtons.forEach((button) => {
+  button.addEventListener("click", () => switchTab(button.dataset.view));
+});
+
+$("homeRecordBtn")?.addEventListener("click", () => switchTab("view-record"));
+
+/* Dashboard sub-tabs (mobile) */
+
+const segmentButtons = document.querySelectorAll(".segment-btn");
+const dashSubviews = document.querySelectorAll(".dash-subview");
+
+segmentButtons.forEach((button) => {
   button.addEventListener("click", () => {
-    const target = button.dataset.view;
+    const target = button.dataset.subview;
 
-    tabButtons.forEach((btn) => btn.classList.toggle("active", btn === button));
-    tabViews.forEach((view) => view.classList.toggle("is-hidden-mobile", view.id !== target));
+    segmentButtons.forEach((btn) => btn.classList.toggle("active", btn === button));
+    dashSubviews.forEach((view) => view.classList.toggle("is-hidden-mobile", view.id !== target));
 
-    window.scrollTo({ top: 0, behavior: "smooth" });
-
-    if (target === "view-dashboard") {
+    if (target === "sub-charts") {
       materialChart?.resize();
       skillChart?.resize();
     }
@@ -445,6 +471,30 @@ function renderLogList() {
     : "まだ記録がありません";
 }
 
+/* Home */
+
+function renderHome() {
+  const todayMinutes = sum(getTodayLogs());
+  const streak = calcStreak();
+  const hour = new Date().getHours();
+
+  const greeting =
+    hour < 11 ? "おはようございます" : hour < 18 ? "こんにちは" : "こんばんは";
+
+  $("homeGreeting").textContent = greeting;
+  $("homeStreak").textContent = `${streak}日`;
+  $("homeToday").textContent = `${todayMinutes}分`;
+  $("homeWeek").textContent = `${sum(getThisWeekLogs())}分`;
+  $("homeMonth").textContent = `${sum(getThisMonthLogs())}分`;
+
+  $("homeMessage").textContent =
+    todayMinutes > 0
+      ? `今日はもう${todayMinutes}分記録済みです。お疲れさまでした！`
+      : streak > 0
+        ? `${streak}日連続中！今日も続けましょう。`
+        : "今日の学習を記録しましょう！";
+}
+
 /* Delete log */
 
 document.addEventListener("click", async (event) => {
@@ -487,6 +537,7 @@ function render() {
 
   renderCalendar();
   renderLogList();
+  renderHome();
 }
 
 /* Log in / log out triggers the actual data load, since fetching
