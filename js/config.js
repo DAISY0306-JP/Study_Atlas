@@ -1,0 +1,5 @@
+window.STUDY_ATLAS_CONFIG = {
+  SUPABASE_URL: "https://your-project.supabase.co",
+  SUPABASE_ANON_KEY: "your-anon-key",
+  API_BASE_URL: "http://localhost:3000"
+};

@@ -11,34 +11,46 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+
+const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey);
+
+async function requireAuth(req, res, next) {
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+
+  if (!token) return res.status(401).json({ error: 'Missing access token' });
+
+  const { data, error } = await supabaseAuth.auth.getUser(token);
+  if (error || !data.user) return res.status(401).json({ error: 'Invalid or expired token' });
+
+  req.userId = data.user.id;
+  req.supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    global: { headers: { Authorization: `Bearer ${token}` } }
+  });
+
+  next();
+}
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', app: 'study-atlas-api' });
 });
 
-app.get('/study-logs', async (req, res) => {
-  const { user_id } = req.query;
-
-  const query = supabase
+app.get('/study-logs', requireAuth, async (req, res) => {
+  const { data, error } = await req.supabase
     .from('study_logs')
     .select('*, materials(name), skills(name), subjects(name)')
     .order('studied_at', { ascending: false });
 
-  if (user_id) query.eq('user_id', user_id);
-
-  const { data, error } = await query;
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
 });
 
-app.post('/study-logs', async (req, res) => {
-  const { data, error } = await supabase
+app.post('/study-logs', requireAuth, async (req, res) => {
+  const { data, error } = await req.supabase
     .from('study_logs')
-    .insert(req.body)
+    .insert({ ...req.body, user_id: req.userId })
     .select()
     .single();
 
@@ -46,9 +58,9 @@ app.post('/study-logs', async (req, res) => {
   res.status(201).json(data);
 });
 
-app.delete('/study-logs/:id', async (req, res) => {
+app.delete('/study-logs/:id', requireAuth, async (req, res) => {
   const { id } = req.params;
-  const { error } = await supabase.from('study_logs').delete().eq('id', id);
+  const { error } = await req.supabase.from('study_logs').delete().eq('id', id);
 
   if (error) return res.status(500).json({ error: error.message });
   res.json({ ok: true });

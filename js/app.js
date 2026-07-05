@@ -400,3 +400,12 @@ function render() {
 }
 
 render();
+
+/* Charts need a resize once the app becomes visible again after login,
+   since Chart.js measured a 0-size canvas while .app was hidden. */
+document.addEventListener("study-atlas:session-changed", (event) => {
+  if (!event.detail) return;
+
+  materialChart?.resize();
+  skillChart?.resize();
+});

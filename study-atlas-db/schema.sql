@@ -2,7 +2,7 @@ create extension if not exists "pgcrypto";
 
 create table if not exists public.subjects (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid,
+  user_id uuid not null references auth.users(id) on delete cascade default auth.uid(),
   name text not null,
   color text default '#7c3aed',
   created_at timestamptz default now()
@@ -10,7 +10,7 @@ create table if not exists public.subjects (
 
 create table if not exists public.materials (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid,
+  user_id uuid not null references auth.users(id) on delete cascade default auth.uid(),
   subject_id uuid references public.subjects(id) on delete cascade,
   name text not null,
   created_at timestamptz default now()
@@ -18,7 +18,7 @@ create table if not exists public.materials (
 
 create table if not exists public.skills (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid,
+  user_id uuid not null references auth.users(id) on delete cascade default auth.uid(),
   subject_id uuid references public.subjects(id) on delete cascade,
   name text not null,
   created_at timestamptz default now()
@@ -26,7 +26,7 @@ create table if not exists public.skills (
 
 create table if not exists public.study_logs (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid,
+  user_id uuid not null references auth.users(id) on delete cascade default auth.uid(),
   subject_id uuid references public.subjects(id) on delete cascade,
   material_id uuid references public.materials(id) on delete set null,
   skill_id uuid references public.skills(id) on delete set null,
@@ -41,7 +41,7 @@ create table if not exists public.study_logs (
 
 create table if not exists public.ai_notes (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid,
+  user_id uuid not null references auth.users(id) on delete cascade default auth.uid(),
   subject_id uuid references public.subjects(id) on delete cascade,
   question text not null,
   answer text,

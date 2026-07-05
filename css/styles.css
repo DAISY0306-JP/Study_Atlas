@@ -109,6 +109,46 @@ h1 {
   font-weight: 700;
 }
 
+.hero-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Auth */
+
+.auth-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.auth-card {
+  width: min(360px, 100%);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  padding: 28px;
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 14px;
+}
+
+.auth-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.auth-error {
+  margin: 0;
+  min-height: 18px;
+  color: var(--danger);
+  font-size: 13px;
+  font-weight: 700;
+}
+
 /* Summary */
 
 .summary-panel {
@@ -658,7 +698,7 @@ form button[type="submit"]:hover {
     display: block;
   }
 
-  .ghost {
+  .hero-actions {
     margin-top: 16px;
   }
 
