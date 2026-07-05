@@ -45,6 +45,21 @@ create table if not exists public.study_logs (
 alter table public.study_logs add column if not exists material text;
 alter table public.study_logs add column if not exists skill text;
 
+create table if not exists public.mock_exams (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade default auth.uid(),
+  exam_no integer,
+  taken_at date not null,
+  reading_score integer check (reading_score between 0 and 100),
+  writing_score integer check (writing_score between 0 and 100),
+  listening_score integer check (listening_score between 0 and 100),
+  total_score integer generated always as (
+    coalesce(reading_score, 0) + coalesce(writing_score, 0) + coalesce(listening_score, 0)
+  ) stored,
+  memo text,
+  created_at timestamptz default now()
+);
+
 create table if not exists public.ai_notes (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade default auth.uid(),

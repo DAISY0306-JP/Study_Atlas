@@ -82,6 +82,25 @@
           </div>
         </section>
 
+        <section class="card exam-card">
+          <div class="exam-card-main">
+            <span class="exam-card-label">試験まであと</span>
+            <strong id="examDday">--日</strong>
+          </div>
+
+          <div class="exam-card-side">
+            <div>
+              <span>目標点</span>
+              <strong id="examTarget">--点</strong>
+            </div>
+
+            <div>
+              <span>最新の模試</span>
+              <strong id="examLatest">--点</strong>
+            </div>
+          </div>
+        </section>
+
         <section class="home-stats">
           <div class="home-stat-card">
             <span class="home-stat-label">今日</span>
@@ -277,6 +296,7 @@
           <button type="button" class="segment-btn active" data-subview="sub-charts">グラフ</button>
           <button type="button" class="segment-btn" data-subview="sub-calendar">カレンダー</button>
           <button type="button" class="segment-btn" data-subview="sub-history">履歴</button>
+          <button type="button" class="segment-btn" data-subview="sub-exams">過去問</button>
         </div>
 
         <section class="insight-grid">
@@ -338,6 +358,86 @@
               </div>
 
               <div id="logList" class="list empty">まだ記録がありません</div>
+            </section>
+          </div>
+
+          <div id="sub-exams" class="dash-subview is-hidden-mobile">
+            <section class="card">
+              <div class="section-head">
+                <div>
+                  <p class="section-label">Mock Exam</p>
+                  <h2>過去問スコアを記録</h2>
+                </div>
+              </div>
+
+              <form id="examForm">
+                <div class="form-grid">
+                  <label>
+                    回数
+                    <input type="number" id="examNo" min="1" placeholder="1" />
+                  </label>
+
+                  <label>
+                    実施日
+                    <input type="date" id="examDate" required />
+                  </label>
+
+                  <label>
+                    読解（0〜100）
+                    <input type="number" id="examReading" min="0" max="100" placeholder="60" required />
+                  </label>
+
+                  <label>
+                    作文（0〜100）
+                    <input type="number" id="examWriting" min="0" max="100" placeholder="45" required />
+                  </label>
+
+                  <label>
+                    リスニング（0〜100）
+                    <input type="number" id="examListening" min="0" max="100" placeholder="40" required />
+                  </label>
+                </div>
+
+                <label>
+                  メモ
+                  <textarea id="examMemo" placeholder="時間配分・感触など"></textarea>
+                </label>
+
+                <button type="submit" class="primary">＋ 記録する</button>
+              </form>
+            </section>
+
+            <section class="card chart-card">
+              <div class="section-head">
+                <div>
+                  <p class="section-label">Trend</p>
+                  <h2>分野別の点数推移</h2>
+                </div>
+              </div>
+
+              <canvas id="examSectionChart"></canvas>
+            </section>
+
+            <section class="card chart-card">
+              <div class="section-head">
+                <div>
+                  <p class="section-label">Trend</p>
+                  <h2>合計点の推移</h2>
+                </div>
+              </div>
+
+              <canvas id="examTotalChart"></canvas>
+            </section>
+
+            <section class="card log-card">
+              <div class="section-head">
+                <div>
+                  <p class="section-label">History</p>
+                  <h2>過去問履歴</h2>
+                </div>
+              </div>
+
+              <div id="examList" class="list empty">まだ記録がありません</div>
             </section>
           </div>
         </section>

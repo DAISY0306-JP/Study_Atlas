@@ -1,6 +1,11 @@
 let logs = [];
+let mockExams = [];
 let materialChart;
 let skillChart;
+let examChart;
+let examTotalChart;
+
+const EXAM_CONFIG = window.STUDY_ATLAS_CONFIG || {};
 
 const $ = (id) => document.getElementById(id);
 
@@ -32,6 +37,18 @@ function weekStart() {
   d.setHours(0, 0, 0, 0);
 
   return d;
+}
+
+function daysUntil(dateStr) {
+  if (!dateStr) return null;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const target = new Date(`${dateStr}T00:00:00`);
+  const msPerDay = 24 * 60 * 60 * 1000;
+
+  return Math.ceil((target - today) / msPerDay);
 }
 
 function sum(arr) {
@@ -147,6 +164,56 @@ async function refreshLogs() {
   render();
 }
 
+/* Mock exams */
+
+function fromApiExam(row) {
+  return {
+    id: row.id,
+    examNo: row.exam_no,
+    date: row.taken_at,
+    reading: row.reading_score,
+    writing: row.writing_score,
+    listening: row.listening_score,
+    total: row.total_score,
+    memo: row.memo
+  };
+}
+
+async function fetchMockExams() {
+  const { data, error } = await window.supabaseClient
+    .from("mock_exams")
+    .select("*")
+    .order("taken_at", { ascending: true });
+
+  if (error) {
+    console.error("模試結果の取得に失敗しました", error);
+    return [];
+  }
+
+  return data.map(fromApiExam);
+}
+
+async function createMockExam(payload) {
+  const { error } = await window.supabaseClient.from("mock_exams").insert(payload);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+async function deleteMockExam(id) {
+  const { error } = await window.supabaseClient.from("mock_exams").delete().eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+async function refreshMockExams() {
+  mockExams = await fetchMockExams();
+  renderExams();
+}
+
 /* Form */
 
 $("logForm").addEventListener("submit", async (event) => {
@@ -175,6 +242,30 @@ $("logForm").addEventListener("submit", async (event) => {
   } catch (err) {
     console.error(err);
     alert("記録の保存に失敗しました。");
+  }
+});
+
+$("examForm").addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const payload = {
+    exam_no: $("examNo").value ? Number($("examNo").value) : null,
+    taken_at: $("examDate").value,
+    reading_score: Number($("examReading").value),
+    writing_score: Number($("examWriting").value),
+    listening_score: Number($("examListening").value),
+    memo: $("examMemo").value.trim()
+  };
+
+  try {
+    await createMockExam(payload);
+
+    event.target.reset();
+
+    await refreshMockExams();
+  } catch (err) {
+    console.error(err);
+    alert("模試結果の保存に失敗しました。");
   }
 });
 
@@ -267,6 +358,8 @@ function switchTab(target) {
   if (target === "view-dashboard") {
     materialChart?.resize();
     skillChart?.resize();
+    examChart?.resize();
+    examTotalChart?.resize();
   }
 }
 
@@ -291,6 +384,11 @@ segmentButtons.forEach((button) => {
     if (target === "sub-charts") {
       materialChart?.resize();
       skillChart?.resize();
+    }
+
+    if (target === "sub-exams") {
+      examChart?.resize();
+      examTotalChart?.resize();
     }
   });
 });
@@ -357,6 +455,181 @@ function renderChart(canvasId, oldChart, grouped, label) {
         }
       }
     }
+  });
+}
+
+/* Mock exam charts */
+/* Section scores (0-100 each) and the total (0-300) live on separate
+   charts/axes since they're different scales — mixing them on one
+   y-axis would misrepresent both. */
+
+function examLineDataset(label, color, width, data) {
+  return {
+    label,
+    data,
+    borderColor: color,
+    backgroundColor: color,
+    borderWidth: width,
+    pointRadius: 4,
+    pointHoverRadius: 6,
+    pointBackgroundColor: color,
+    tension: 0,
+    fill: false
+  };
+}
+
+function baseLineOptions(maxScore) {
+  return {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {
+      legend: {
+        position: "bottom",
+        labels: {
+          color: "#6B7C6B",
+          font: { weight: "700" },
+          boxWidth: 10,
+          boxHeight: 10
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => `${context.dataset.label}: ${context.raw}点`
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { color: "#6B7C6B", font: { weight: "700" } }
+      },
+      y: {
+        beginAtZero: true,
+        max: maxScore,
+        grid: { color: "rgba(213, 239, 217, 0.8)" },
+        ticks: {
+          color: "#6B7C6B",
+          callback: (value) => `${value}点`
+        }
+      }
+    }
+  };
+}
+
+function examCard(exam) {
+  const diffLabel =
+    exam.diff === null || exam.diff === undefined
+      ? ""
+      : exam.diff > 0
+        ? `<span class="exam-diff up">▲ ${exam.diff}</span>`
+        : exam.diff < 0
+          ? `<span class="exam-diff down">▼ ${Math.abs(exam.diff)}</span>`
+          : `<span class="exam-diff">±0</span>`;
+
+  return `
+    <article class="exam-item">
+      <div class="exam-item-header">
+        <div class="log-date">
+          <span class="log-chip">${escapeHtml(exam.date)}</span>
+          ${exam.examNo ? `<span class="log-chip">第${escapeHtml(exam.examNo)}回</span>` : ""}
+          ${diffLabel}
+        </div>
+
+        <button class="delete-btn" type="button" data-delete-exam="${escapeHtml(exam.id)}">
+          削除
+        </button>
+      </div>
+
+      <div class="exam-score-row">
+        <span class="exam-score-pill">
+          <span>読解</span>
+          <strong>${escapeHtml(exam.reading)}</strong>
+        </span>
+
+        <span class="exam-score-pill">
+          <span>作文</span>
+          <strong>${escapeHtml(exam.writing)}</strong>
+        </span>
+
+        <span class="exam-score-pill">
+          <span>リスニング</span>
+          <strong>${escapeHtml(exam.listening)}</strong>
+        </span>
+
+        <span class="exam-score-pill total">
+          <span>合計</span>
+          <strong>${escapeHtml(exam.total)}</strong>
+        </span>
+      </div>
+
+      ${exam.memo ? `<div class="log-memo">${escapeHtml(exam.memo)}</div>` : ""}
+    </article>
+  `;
+}
+
+function renderExamList() {
+  const withDiff = mockExams.map((exam, index) => ({
+    ...exam,
+    diff: index > 0 ? exam.total - mockExams[index - 1].total : null
+  }));
+
+  const items = [...withDiff].reverse();
+
+  $("examList").className = `list ${items.length ? "" : "empty"}`;
+  $("examList").innerHTML = items.length
+    ? items.map(examCard).join("")
+    : "まだ記録がありません";
+}
+
+function renderExamHome() {
+  const dday = daysUntil(EXAM_CONFIG.EXAM_DATE);
+  $("examDday").textContent = dday === null ? "--日" : `${dday}日`;
+
+  const target = EXAM_CONFIG.TARGET_SCORE?.total;
+  $("examTarget").textContent = target ? `${target}点` : "--点";
+
+  const latest = mockExams[mockExams.length - 1];
+  $("examLatest").textContent = latest ? `${latest.total}点` : "--点";
+}
+
+function renderExams() {
+  renderExamCharts();
+  renderExamList();
+  renderExamHome();
+}
+
+function renderExamCharts() {
+  examChart?.destroy();
+  examTotalChart?.destroy();
+
+  if (!mockExams.length) {
+    examChart = undefined;
+    examTotalChart = undefined;
+    return;
+  }
+
+  const labels = mockExams.map((exam) => exam.date);
+
+  examChart = new Chart($("examSectionChart"), {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        examLineDataset("読解", "#2a78d6", 2, mockExams.map((exam) => exam.reading)),
+        examLineDataset("リスニング", "#1baf7a", 2, mockExams.map((exam) => exam.listening)),
+        examLineDataset("作文", "#eda100", 2, mockExams.map((exam) => exam.writing))
+      ]
+    },
+    options: baseLineOptions(100)
+  });
+
+  examTotalChart = new Chart($("examTotalChart"), {
+    type: "line",
+    data: {
+      labels,
+      datasets: [examLineDataset("合計", "#35a64a", 3, mockExams.map((exam) => exam.total))]
+    },
+    options: baseLineOptions(300)
   });
 }
 
@@ -511,6 +784,22 @@ document.addEventListener("click", async (event) => {
   }
 });
 
+/* Delete mock exam */
+
+document.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-delete-exam]");
+
+  if (!button) return;
+
+  try {
+    await deleteMockExam(button.dataset.deleteExam);
+    await refreshMockExams();
+  } catch (err) {
+    console.error(err);
+    alert("削除に失敗しました。");
+  }
+});
+
 /* Render */
 
 function render() {
@@ -545,10 +834,16 @@ function render() {
 document.addEventListener("study-atlas:session-changed", async (event) => {
   if (!event.detail) {
     logs = [];
+    mockExams = [];
+    renderExamHome();
     return;
   }
 
-  await refreshLogs();
+  await Promise.all([refreshLogs(), refreshMockExams()]);
   materialChart?.resize();
   skillChart?.resize();
+  examChart?.resize();
+  examTotalChart?.resize();
 });
+
+renderExamHome();
