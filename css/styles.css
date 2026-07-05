@@ -124,6 +124,10 @@ h1 {
   padding: 24px;
 }
 
+.auth-screen[hidden] {
+  display: none;
+}
+
 .auth-card {
   width: min(360px, 100%);
   background: var(--card);

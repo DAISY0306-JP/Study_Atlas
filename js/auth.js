@@ -30,26 +30,36 @@ function showAuth() {
 signInBtn.addEventListener("click", async () => {
   setAuthError("");
 
-  const { error } = await supabaseClient.auth.signInWithPassword({
-    email: authEmail.value.trim(),
-    password: authPassword.value
-  });
+  try {
+    const { error } = await supabaseClient.auth.signInWithPassword({
+      email: authEmail.value.trim(),
+      password: authPassword.value
+    });
 
-  if (error) setAuthError(error.message);
+    if (error) setAuthError(error.message);
+  } catch (err) {
+    console.error(err);
+    setAuthError(`通信エラー: ${err.message}`);
+  }
 });
 
 signUpBtn.addEventListener("click", async () => {
   setAuthError("");
 
-  const { error } = await supabaseClient.auth.signUp({
-    email: authEmail.value.trim(),
-    password: authPassword.value
-  });
+  try {
+    const { error } = await supabaseClient.auth.signUp({
+      email: authEmail.value.trim(),
+      password: authPassword.value
+    });
 
-  if (error) {
-    setAuthError(error.message);
-  } else {
-    setAuthError("確認メールを送信しました。メール内のリンクを開いてからログインしてください。");
+    if (error) {
+      setAuthError(error.message);
+    } else {
+      setAuthError("確認メールを送信しました。メール内のリンクを開いてからログインしてください。");
+    }
+  } catch (err) {
+    console.error(err);
+    setAuthError(`通信エラー: ${err.message}`);
   }
 });
 
