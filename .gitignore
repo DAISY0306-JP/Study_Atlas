@@ -9,3 +9,6 @@ npm-debug.log*
 
 dist/
 build/
+
+docs/spec.md
+docs/progress.md
