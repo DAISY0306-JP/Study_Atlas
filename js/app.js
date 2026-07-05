@@ -237,6 +237,27 @@ document.querySelectorAll(".quick-chip").forEach((button) => {
   });
 });
 
+/* Tab bar (mobile) */
+
+const tabButtons = document.querySelectorAll(".tab-btn");
+const tabViews = document.querySelectorAll(".tab-view");
+
+tabButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const target = button.dataset.view;
+
+    tabButtons.forEach((btn) => btn.classList.toggle("active", btn === button));
+    tabViews.forEach((view) => view.classList.toggle("is-hidden-mobile", view.id !== target));
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    if (target === "view-dashboard") {
+      materialChart?.resize();
+      skillChart?.resize();
+    }
+  });
+});
+
 /* Charts */
 
 function renderChart(canvasId, oldChart, grouped, label) {
