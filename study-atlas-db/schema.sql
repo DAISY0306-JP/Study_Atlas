@@ -39,6 +39,12 @@ create table if not exists public.study_logs (
   created_at timestamptz default now()
 );
 
+-- 現状のフロントは教材/スキルを固定のテキスト選択肢として扱っており、
+-- materials/skillsテーブルとの正規化はまだ使っていないため、
+-- study_logsに直接テキストで持たせる列を用意する
+alter table public.study_logs add column if not exists material text;
+alter table public.study_logs add column if not exists skill text;
+
 create table if not exists public.ai_notes (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade default auth.uid(),

@@ -40,7 +40,7 @@ app.get('/health', (req, res) => {
 app.get('/study-logs', requireAuth, async (req, res) => {
   const { data, error } = await req.supabase
     .from('study_logs')
-    .select('*, materials(name), skills(name), subjects(name)')
+    .select('*')
     .order('studied_at', { ascending: false });
 
   if (error) return res.status(500).json({ error: error.message });
