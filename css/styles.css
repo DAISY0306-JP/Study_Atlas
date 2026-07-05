@@ -66,6 +66,13 @@ body {
   align-items: start;
 }
 
+/* On desktop all three tab-views stack at once (see is-hidden-mobile),
+   so #view-home spans the full width above the record/dashboard columns
+   instead of taking one of the two grid tracks meant for them. */
+#view-home {
+  grid-column: 1 / -1;
+}
+
 .insight-grid {
   display: grid;
   gap: 18px;
