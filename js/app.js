@@ -1,5 +1,3 @@
-const apiBaseUrl = window.STUDY_ATLAS_CONFIG.API_BASE_URL;
-
 let logs = [];
 let materialChart;
 let skillChart;
@@ -11,13 +9,6 @@ if ($("date")) {
 }
 
 /* Utilities */
-
-function authHeaders() {
-  return {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${window.getAccessToken()}`
-  };
-}
 
 function fmt(date) {
   const d = new Date(date);
@@ -117,37 +108,32 @@ function fromApi(row) {
 }
 
 async function fetchLogs() {
-  const res = await fetch(`${apiBaseUrl}/study-logs`, { headers: authHeaders() });
+  const { data, error } = await window.supabaseClient
+    .from("study_logs")
+    .select("*")
+    .order("studied_at", { ascending: false });
 
-  if (!res.ok) {
-    console.error("学習ログの取得に失敗しました", await res.text());
+  if (error) {
+    console.error("学習ログの取得に失敗しました", error);
     return [];
   }
 
-  const data = await res.json();
   return data.map(fromApi);
 }
 
 async function createLog(payload) {
-  const res = await fetch(`${apiBaseUrl}/study-logs`, {
-    method: "POST",
-    headers: authHeaders(),
-    body: JSON.stringify(payload)
-  });
+  const { error } = await window.supabaseClient.from("study_logs").insert(payload);
 
-  if (!res.ok) {
-    throw new Error(await res.text());
+  if (error) {
+    throw new Error(error.message);
   }
 }
 
 async function deleteLog(id) {
-  const res = await fetch(`${apiBaseUrl}/study-logs/${id}`, {
-    method: "DELETE",
-    headers: authHeaders()
-  });
+  const { error } = await window.supabaseClient.from("study_logs").delete().eq("id", id);
 
-  if (!res.ok) {
-    throw new Error(await res.text());
+  if (error) {
+    throw new Error(error.message);
   }
 }
 

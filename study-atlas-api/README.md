@@ -2,6 +2,11 @@
 
 Study Atlas のバックエンドAPIです。
 
+**現在デプロイ済みのフロントエンドはこのAPIを使っていません。**
+`study_logs` の読み書きはSupabaseのRLSにより本人のみに制限されているため、
+フロントから直接Supabase（`js/app.js` の `window.supabaseClient`）を呼び出しています。
+このAPIは、将来サーバー側の処理（AI採点など）が必要になった際のために残しています。
+
 ## 初期機能
 
 - `/health`

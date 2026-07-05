@@ -3,6 +3,7 @@ const supabaseClient = window.supabase.createClient(
   authConfig.SUPABASE_URL,
   authConfig.SUPABASE_ANON_KEY
 );
+window.supabaseClient = supabaseClient;
 
 const authScreen = document.getElementById("authScreen");
 const appRoot = document.querySelector(".app");
@@ -68,7 +69,6 @@ logoutBtn?.addEventListener("click", async () => {
 });
 
 supabaseClient.auth.onAuthStateChange((_event, session) => {
-  window.studyAtlasSession = session;
   document.dispatchEvent(new CustomEvent("study-atlas:session-changed", { detail: session }));
 
   if (session) {
@@ -77,5 +77,3 @@ supabaseClient.auth.onAuthStateChange((_event, session) => {
     showAuth();
   }
 });
-
-window.getAccessToken = () => window.studyAtlasSession?.access_token || null;
