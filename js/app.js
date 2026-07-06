@@ -1,16 +1,44 @@
 let logs = [];
 let mockExams = [];
+let reflections = [];
+let reflectionType = "weekly";
 let materialChart;
 let skillChart;
+let weakTagChart;
 let examChart;
 let examTotalChart;
 
 const EXAM_CONFIG = window.STUDY_ATLAS_CONFIG || {};
 
+const WEAK_TAGS_BY_SKILL = {
+  読解: ["時間不足", "文法", "語彙"],
+  ライティング: ["助詞", "接続詞", "語尾", "語彙不足"],
+  リスニング: ["数字", "敬語", "会話問題", "スピード"]
+};
+
+const REFLECTION_LABELS = {
+  weekly: {
+    date: "週の開始日",
+    good: "今週できたこと",
+    weak: "苦手だったこと",
+    next: "来週の目標"
+  },
+  monthly: {
+    date: "対象月の1日",
+    good: "今月よかったこと",
+    weak: "苦手だったこと・課題",
+    next: "来月に向けた改善点"
+  }
+};
+
 const $ = (id) => document.getElementById(id);
 
 if ($("date")) {
   $("date").valueAsDate = new Date();
+}
+
+if ($("reflectionDate")) {
+  $("reflectionDate").valueAsDate = weekStart();
 }
 
 /* Utilities */
@@ -59,6 +87,15 @@ function groupBy(field, sourceLogs = logs) {
   return sourceLogs.reduce((acc, log) => {
     const key = log[field] || "未設定";
     acc[key] = (acc[key] || 0) + Number(log.minutes || 0);
+    return acc;
+  }, {});
+}
+
+function weakTagCounts(sourceLogs = logs) {
+  return sourceLogs.reduce((acc, log) => {
+    (log.weakTags || []).forEach((tag) => {
+      acc[tag] = (acc[tag] || 0) + 1;
+    });
     return acc;
   }, {});
 }
@@ -125,7 +162,8 @@ function fromApi(row) {
     understanding: row.understanding,
     review: row.needs_review,
     content: row.content,
-    memo: row.memo
+    memo: row.memo,
+    weakTags: row.weak_tags || []
   };
 }
 
@@ -214,6 +252,90 @@ async function refreshMockExams() {
   renderExams();
 }
 
+/* Reflections */
+
+function fromApiReflection(row) {
+  return {
+    id: row.id,
+    periodType: row.period_type,
+    periodStart: row.period_start,
+    goodPoints: row.good_points,
+    weakPoints: row.weak_points,
+    nextGoal: row.next_goal
+  };
+}
+
+async function fetchReflections() {
+  const { data, error } = await window.supabaseClient
+    .from("reflections")
+    .select("*")
+    .order("period_start", { ascending: true });
+
+  if (error) {
+    console.error("振り返りの取得に失敗しました", error);
+    return [];
+  }
+
+  return data.map(fromApiReflection);
+}
+
+async function createReflection(payload) {
+  const { error } = await window.supabaseClient.from("reflections").insert(payload);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+async function deleteReflection(id) {
+  const { error } = await window.supabaseClient.from("reflections").delete().eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+async function refreshReflections() {
+  reflections = await fetchReflections();
+  renderReflectionList();
+}
+
+/* Weak tags */
+
+function syncWeakTagsField() {
+  const skill = $("skill").value;
+  const hasTags = Object.prototype.hasOwnProperty.call(WEAK_TAGS_BY_SKILL, skill);
+
+  $("weakTagsField").hidden = !hasTags;
+
+  document.querySelectorAll(".weak-tags-group").forEach((group) => {
+    const isMatch = group.dataset.weakSkill === skill;
+    group.hidden = !isMatch;
+
+    if (!isMatch) {
+      group.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+        checkbox.checked = false;
+      });
+    }
+  });
+}
+
+function getWeakTags() {
+  return Array.from(document.querySelectorAll('input[name="weakTag"]:checked')).map(
+    (checkbox) => checkbox.value
+  );
+}
+
+function resetWeakTags() {
+  document.querySelectorAll('input[name="weakTag"]').forEach((checkbox) => {
+    checkbox.checked = false;
+  });
+  syncWeakTagsField();
+}
+
+$("skill").addEventListener("change", syncWeakTagsField);
+syncWeakTagsField();
+
 /* Form */
 
 $("logForm").addEventListener("submit", async (event) => {
@@ -227,7 +349,8 @@ $("logForm").addEventListener("submit", async (event) => {
     understanding: getUnderstandingValue(),
     needs_review: $("review").checked,
     content: $("content").value.trim(),
-    memo: $("memo").value.trim()
+    memo: $("memo").value.trim(),
+    weak_tags: getWeakTags()
   };
 
   try {
@@ -236,6 +359,7 @@ $("logForm").addEventListener("submit", async (event) => {
     event.target.reset();
     $("date").valueAsDate = new Date();
     resetUnderstanding();
+    resetWeakTags();
     document.querySelector(".quick-record-card").open = false;
 
     await refreshLogs();
@@ -266,6 +390,55 @@ $("examForm").addEventListener("submit", async (event) => {
   } catch (err) {
     console.error(err);
     alert("模試結果の保存に失敗しました。");
+  }
+});
+
+/* Reflection type toggle */
+
+function applyReflectionLabels() {
+  const labels = REFLECTION_LABELS[reflectionType];
+
+  $("reflectionDateLabel").textContent = labels.date;
+  $("reflectionGoodLabel").textContent = labels.good;
+  $("reflectionWeakLabel").textContent = labels.weak;
+  $("reflectionNextLabel").textContent = labels.next;
+}
+
+const reflectionTypeButtons = document.querySelectorAll("[data-reflection-type]");
+
+reflectionTypeButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    reflectionType = button.dataset.reflectionType;
+
+    reflectionTypeButtons.forEach((btn) => btn.classList.toggle("active", btn === button));
+
+    applyReflectionLabels();
+    renderReflectionList();
+  });
+});
+
+applyReflectionLabels();
+
+$("reflectionForm").addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const payload = {
+    period_type: reflectionType,
+    period_start: $("reflectionDate").value,
+    good_points: $("reflectionGood").value.trim(),
+    weak_points: $("reflectionWeak").value.trim(),
+    next_goal: $("reflectionNext").value.trim()
+  };
+
+  try {
+    await createReflection(payload);
+
+    event.target.reset();
+
+    await refreshReflections();
+  } catch (err) {
+    console.error(err);
+    alert("振り返りの保存に失敗しました。");
   }
 });
 
@@ -358,6 +531,7 @@ function switchTab(target) {
   if (target === "view-dashboard") {
     materialChart?.resize();
     skillChart?.resize();
+    weakTagChart?.resize();
     examChart?.resize();
     examTotalChart?.resize();
   }
@@ -384,6 +558,7 @@ segmentButtons.forEach((button) => {
     if (target === "sub-charts") {
       materialChart?.resize();
       skillChart?.resize();
+      weakTagChart?.resize();
     }
 
     if (target === "sub-exams") {
@@ -395,7 +570,7 @@ segmentButtons.forEach((button) => {
 
 /* Charts */
 
-function renderChart(canvasId, oldChart, grouped, label) {
+function renderChart(canvasId, oldChart, grouped, label, unit = "分") {
   const labels = Object.keys(grouped);
   const data = Object.values(grouped);
 
@@ -427,7 +602,7 @@ function renderChart(canvasId, oldChart, grouped, label) {
         },
         tooltip: {
           callbacks: {
-            label: (context) => `${context.raw}分`
+            label: (context) => `${context.raw}${unit}`
           }
         }
       },
@@ -450,7 +625,7 @@ function renderChart(canvasId, oldChart, grouped, label) {
           },
           ticks: {
             color: "#6B7C6B",
-            callback: (value) => `${value}分`
+            callback: (value) => `${value}${unit}`
           }
         }
       }
@@ -633,6 +808,54 @@ function renderExamCharts() {
   });
 }
 
+/* Reflections */
+
+function reflectionCard(reflection) {
+  const labels = REFLECTION_LABELS[reflection.periodType];
+
+  return `
+    <article class="log-item">
+      <div class="log-item-header">
+        <div class="log-date">
+          <span class="log-chip">${escapeHtml(reflection.periodStart)}</span>
+          <span class="log-chip">${reflection.periodType === "weekly" ? "週次" : "月次"}</span>
+        </div>
+
+        <button class="delete-btn" type="button" data-delete-reflection="${escapeHtml(reflection.id)}">
+          削除
+        </button>
+      </div>
+
+      ${
+        reflection.goodPoints
+          ? `<div class="log-content"><strong>${escapeHtml(labels.good)}：</strong>${escapeHtml(reflection.goodPoints)}</div>`
+          : ""
+      }
+
+      ${
+        reflection.weakPoints
+          ? `<div class="log-content"><strong>${escapeHtml(labels.weak)}：</strong>${escapeHtml(reflection.weakPoints)}</div>`
+          : ""
+      }
+
+      ${
+        reflection.nextGoal
+          ? `<div class="log-memo"><strong>${escapeHtml(labels.next)}：</strong>${escapeHtml(reflection.nextGoal)}</div>`
+          : ""
+      }
+    </article>
+  `;
+}
+
+function renderReflectionList() {
+  const items = reflections.filter((r) => r.periodType === reflectionType).slice().reverse();
+
+  $("reflectionList").className = `list ${items.length ? "" : "empty"}`;
+  $("reflectionList").innerHTML = items.length
+    ? items.map(reflectionCard).join("")
+    : "まだ記録がありません";
+}
+
 /* Streak */
 
 function calcStreak() {
@@ -720,6 +943,14 @@ function logCard(log) {
       </div>
 
       ${
+        log.weakTags && log.weakTags.length
+          ? `<div class="log-date">${log.weakTags
+              .map((tag) => `<span class="log-chip">#${escapeHtml(tag)}</span>`)
+              .join("")}</div>`
+          : ""
+      }
+
+      ${
         log.memo
           ? `<div class="log-memo">${escapeHtml(log.memo)}</div>`
           : ""
@@ -800,6 +1031,22 @@ document.addEventListener("click", async (event) => {
   }
 });
 
+/* Delete reflection */
+
+document.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-delete-reflection]");
+
+  if (!button) return;
+
+  try {
+    await deleteReflection(button.dataset.deleteReflection);
+    await refreshReflections();
+  } catch (err) {
+    console.error(err);
+    alert("削除に失敗しました。");
+  }
+});
+
 /* Render */
 
 function render() {
@@ -824,6 +1071,14 @@ function render() {
     "学習時間"
   );
 
+  weakTagChart = renderChart(
+    "weakTagChart",
+    weakTagChart,
+    weakTagCounts(),
+    "苦手回数",
+    "回"
+  );
+
   renderCalendar();
   renderLogList();
   renderHome();
@@ -835,13 +1090,16 @@ document.addEventListener("study-atlas:session-changed", async (event) => {
   if (!event.detail) {
     logs = [];
     mockExams = [];
+    reflections = [];
     renderExamHome();
+    renderReflectionList();
     return;
   }
 
-  await Promise.all([refreshLogs(), refreshMockExams()]);
+  await Promise.all([refreshLogs(), refreshMockExams(), refreshReflections()]);
   materialChart?.resize();
   skillChart?.resize();
+  weakTagChart?.resize();
   examChart?.resize();
   examTotalChart?.resize();
 });

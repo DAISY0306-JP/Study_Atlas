@@ -271,6 +271,63 @@
               </div>
             </fieldset>
 
+            <fieldset class="choice-group weak-tags-field" id="weakTagsField" hidden>
+              <legend>苦手ポイント（任意）</legend>
+
+              <div class="choice-list weak-tags-group" data-weak-skill="読解" hidden>
+                <label class="choice-pill">
+                  <input type="checkbox" name="weakTag" value="時間不足" />
+                  <span>時間不足</span>
+                </label>
+                <label class="choice-pill">
+                  <input type="checkbox" name="weakTag" value="文法" />
+                  <span>文法</span>
+                </label>
+                <label class="choice-pill">
+                  <input type="checkbox" name="weakTag" value="語彙" />
+                  <span>語彙</span>
+                </label>
+              </div>
+
+              <div class="choice-list weak-tags-group" data-weak-skill="ライティング" hidden>
+                <label class="choice-pill">
+                  <input type="checkbox" name="weakTag" value="助詞" />
+                  <span>助詞</span>
+                </label>
+                <label class="choice-pill">
+                  <input type="checkbox" name="weakTag" value="接続詞" />
+                  <span>接続詞</span>
+                </label>
+                <label class="choice-pill">
+                  <input type="checkbox" name="weakTag" value="語尾" />
+                  <span>語尾</span>
+                </label>
+                <label class="choice-pill">
+                  <input type="checkbox" name="weakTag" value="語彙不足" />
+                  <span>語彙不足</span>
+                </label>
+              </div>
+
+              <div class="choice-list weak-tags-group" data-weak-skill="リスニング" hidden>
+                <label class="choice-pill">
+                  <input type="checkbox" name="weakTag" value="数字" />
+                  <span>数字</span>
+                </label>
+                <label class="choice-pill">
+                  <input type="checkbox" name="weakTag" value="敬語" />
+                  <span>敬語</span>
+                </label>
+                <label class="choice-pill">
+                  <input type="checkbox" name="weakTag" value="会話問題" />
+                  <span>会話問題</span>
+                </label>
+                <label class="choice-pill">
+                  <input type="checkbox" name="weakTag" value="スピード" />
+                  <span>スピード</span>
+                </label>
+              </div>
+            </fieldset>
+
             <label class="check">
               <input type="checkbox" id="review" />
               復習リストに入れる
@@ -297,6 +354,7 @@
           <button type="button" class="segment-btn" data-subview="sub-calendar">カレンダー</button>
           <button type="button" class="segment-btn" data-subview="sub-history">履歴</button>
           <button type="button" class="segment-btn" data-subview="sub-exams">過去問</button>
+          <button type="button" class="segment-btn" data-subview="sub-reflections">振り返り</button>
         </div>
 
         <section class="insight-grid">
@@ -321,6 +379,17 @@
               </div>
 
               <canvas id="skillChart"></canvas>
+            </section>
+
+            <section class="card chart-card">
+              <div class="section-head">
+                <div>
+                  <p class="section-label">Weak Points</p>
+                  <h2>苦手ポイントの頻度</h2>
+                </div>
+              </div>
+
+              <canvas id="weakTagChart"></canvas>
             </section>
           </div>
 
@@ -438,6 +507,57 @@
               </div>
 
               <div id="examList" class="list empty">まだ記録がありません</div>
+            </section>
+          </div>
+
+          <div id="sub-reflections" class="dash-subview is-hidden-mobile">
+            <section class="card">
+              <div class="section-head">
+                <div>
+                  <p class="section-label">Reflection</p>
+                  <h2>振り返りを記録</h2>
+                </div>
+              </div>
+
+              <div class="segmented-control reflection-type-toggle">
+                <button type="button" class="segment-btn active" data-reflection-type="weekly">週次</button>
+                <button type="button" class="segment-btn" data-reflection-type="monthly">月次</button>
+              </div>
+
+              <form id="reflectionForm">
+                <label>
+                  <span id="reflectionDateLabel">週の開始日</span>
+                  <input type="date" id="reflectionDate" required />
+                </label>
+
+                <label>
+                  <span id="reflectionGoodLabel">今週できたこと</span>
+                  <textarea id="reflectionGood"></textarea>
+                </label>
+
+                <label>
+                  <span id="reflectionWeakLabel">苦手だったこと</span>
+                  <textarea id="reflectionWeak"></textarea>
+                </label>
+
+                <label>
+                  <span id="reflectionNextLabel">来週の目標</span>
+                  <textarea id="reflectionNext"></textarea>
+                </label>
+
+                <button type="submit" class="primary">＋ 記録する</button>
+              </form>
+            </section>
+
+            <section class="card log-card">
+              <div class="section-head">
+                <div>
+                  <p class="section-label">History</p>
+                  <h2>振り返り履歴</h2>
+                </div>
+              </div>
+
+              <div id="reflectionList" class="list empty">まだ記録がありません</div>
             </section>
           </div>
         </section>

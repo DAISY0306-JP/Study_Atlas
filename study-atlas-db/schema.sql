@@ -44,6 +44,7 @@ create table if not exists public.study_logs (
 -- study_logsに直接テキストで持たせる列を用意する
 alter table public.study_logs add column if not exists material text;
 alter table public.study_logs add column if not exists skill text;
+alter table public.study_logs add column if not exists weak_tags text[] default '{}';
 
 create table if not exists public.mock_exams (
   id uuid primary key default gen_random_uuid(),
@@ -57,6 +58,17 @@ create table if not exists public.mock_exams (
     coalesce(reading_score, 0) + coalesce(writing_score, 0) + coalesce(listening_score, 0)
   ) stored,
   memo text,
+  created_at timestamptz default now()
+);
+
+create table if not exists public.reflections (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade default auth.uid(),
+  period_type text not null check (period_type in ('weekly', 'monthly')),
+  period_start date not null,
+  good_points text,
+  weak_points text,
+  next_goal text,
   created_at timestamptz default now()
 );
 

@@ -101,6 +101,12 @@ body {
   border-radius: 999px;
 }
 
+/* Unlike .segmented-control (mobile-only view switcher, hidden on
+   desktop), this toggle is a real input that must show on both. */
+.reflection-type-toggle {
+  display: flex;
+}
+
 .segment-btn {
   flex: 1;
   border: none;
@@ -744,12 +750,17 @@ form button[type="submit"]:hover {
   gap: 10px;
 }
 
+.choice-list[hidden] {
+  display: none;
+}
+
 .choice-pill {
   display: inline-flex;
   cursor: pointer;
 }
 
-.choice-pill input[type="radio"] {
+.choice-pill input[type="radio"],
+.choice-pill input[type="checkbox"] {
   position: absolute;
   opacity: 0;
   pointer-events: none;
@@ -778,7 +789,8 @@ form button[type="submit"]:hover {
   transition: 0.18s ease;
 }
 
-.choice-pill input[type="radio"]:checked + span {
+.choice-pill input[type="radio"]:checked + span,
+.choice-pill input[type="checkbox"]:checked + span {
   background: var(--primary);
   border-color: var(--primary);
   color: #fff;
