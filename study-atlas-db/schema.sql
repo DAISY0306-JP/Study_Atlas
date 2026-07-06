@@ -72,6 +72,18 @@ create table if not exists public.reflections (
   created_at timestamptz default now()
 );
 
+create table if not exists public.vocab_words (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade default auth.uid(),
+  word text not null,
+  meaning text,
+  is_weak boolean not null default false,
+  review_count integer not null default 0,
+  learned_at date not null default current_date,
+  last_reviewed_at date,
+  created_at timestamptz default now()
+);
+
 create table if not exists public.ai_notes (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade default auth.uid(),

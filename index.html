@@ -355,6 +355,7 @@
           <button type="button" class="segment-btn" data-subview="sub-history">履歴</button>
           <button type="button" class="segment-btn" data-subview="sub-exams">過去問</button>
           <button type="button" class="segment-btn" data-subview="sub-reflections">振り返り</button>
+          <button type="button" class="segment-btn" data-subview="sub-vocab">単語帳</button>
         </div>
 
         <section class="insight-grid">
@@ -558,6 +559,66 @@
               </div>
 
               <div id="reflectionList" class="list empty">まだ記録がありません</div>
+            </section>
+          </div>
+
+          <div id="sub-vocab" class="dash-subview is-hidden-mobile">
+            <section class="card">
+              <div class="section-head">
+                <div>
+                  <p class="section-label">Vocabulary</p>
+                  <h2>単語を追加</h2>
+                </div>
+              </div>
+
+              <form id="vocabForm">
+                <div class="form-grid">
+                  <label>
+                    単語
+                    <input type="text" id="vocabWord" placeholder="예를 들면" required />
+                  </label>
+
+                  <label>
+                    意味
+                    <input type="text" id="vocabMeaning" placeholder="例えば" />
+                  </label>
+                </div>
+
+                <label class="check">
+                  <input type="checkbox" id="vocabWeak" />
+                  苦手単語としてマーク
+                </label>
+
+                <button type="submit" class="primary">＋ 覚えた単語を追加</button>
+              </form>
+            </section>
+
+            <section class="home-stats vocab-stats">
+              <div class="home-stat-card">
+                <span class="home-stat-label">累計語数</span>
+                <strong id="vocabTotalCount">0語</strong>
+              </div>
+
+              <div class="home-stat-card">
+                <span class="home-stat-label">今日覚えた</span>
+                <strong id="vocabTodayCount">0語</strong>
+              </div>
+
+              <div class="home-stat-card">
+                <span class="home-stat-label">苦手単語</span>
+                <strong id="vocabWeakCount">0語</strong>
+              </div>
+            </section>
+
+            <section class="card log-card">
+              <div class="section-head">
+                <div>
+                  <p class="section-label">Words</p>
+                  <h2>単語一覧</h2>
+                </div>
+              </div>
+
+              <div id="vocabList" class="list empty">まだ記録がありません</div>
             </section>
           </div>
         </section>

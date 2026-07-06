@@ -2,6 +2,7 @@ let logs = [];
 let mockExams = [];
 let reflections = [];
 let reflectionType = "weekly";
+let vocabWords = [];
 let materialChart;
 let skillChart;
 let weakTagChart;
@@ -300,6 +301,62 @@ async function refreshReflections() {
   renderReflectionList();
 }
 
+/* Vocab */
+
+function fromApiVocab(row) {
+  return {
+    id: row.id,
+    word: row.word,
+    meaning: row.meaning,
+    isWeak: row.is_weak,
+    reviewCount: row.review_count,
+    learnedAt: row.learned_at
+  };
+}
+
+async function fetchVocabWords() {
+  const { data, error } = await window.supabaseClient
+    .from("vocab_words")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("単語の取得に失敗しました", error);
+    return [];
+  }
+
+  return data.map(fromApiVocab);
+}
+
+async function createVocabWord(payload) {
+  const { error } = await window.supabaseClient.from("vocab_words").insert(payload);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+async function updateVocabWord(id, patch) {
+  const { error } = await window.supabaseClient.from("vocab_words").update(patch).eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+async function deleteVocabWord(id) {
+  const { error } = await window.supabaseClient.from("vocab_words").delete().eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+async function refreshVocabWords() {
+  vocabWords = await fetchVocabWords();
+  renderVocab();
+}
+
 /* Weak tags */
 
 function syncWeakTagsField() {
@@ -439,6 +496,28 @@ $("reflectionForm").addEventListener("submit", async (event) => {
   } catch (err) {
     console.error(err);
     alert("振り返りの保存に失敗しました。");
+  }
+});
+
+$("vocabForm").addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const payload = {
+    word: $("vocabWord").value.trim(),
+    meaning: $("vocabMeaning").value.trim(),
+    is_weak: $("vocabWeak").checked,
+    learned_at: fmt(new Date())
+  };
+
+  try {
+    await createVocabWord(payload);
+
+    event.target.reset();
+
+    await refreshVocabWords();
+  } catch (err) {
+    console.error(err);
+    alert("単語の保存に失敗しました。");
   }
 });
 
@@ -856,6 +935,61 @@ function renderReflectionList() {
     : "まだ記録がありません";
 }
 
+/* Vocab */
+
+function vocabCard(word) {
+  return `
+    <article class="log-item ${word.isWeak ? "needs-review" : ""}">
+      <div class="log-item-header">
+        <div class="log-date">
+          <span class="log-chip">${escapeHtml(word.learnedAt)}</span>
+          <span class="log-chip">復習${escapeHtml(word.reviewCount)}回</span>
+        </div>
+
+        <button class="delete-btn" type="button" data-delete-vocab="${escapeHtml(word.id)}">
+          削除
+        </button>
+      </div>
+
+      <div class="log-main">
+        <span class="log-title">
+          ${escapeHtml(word.word)}${word.meaning ? `・${escapeHtml(word.meaning)}` : ""}
+        </span>
+      </div>
+
+      <div class="log-item-actions">
+        <button type="button" class="ghost" data-review-vocab="${escapeHtml(word.id)}">
+          復習した（+1）
+        </button>
+
+        <button type="button" class="ghost" data-toggle-weak-vocab="${escapeHtml(word.id)}">
+          ${word.isWeak ? "苦手を解除" : "苦手にする"}
+        </button>
+      </div>
+    </article>
+  `;
+}
+
+function renderVocabList() {
+  $("vocabList").className = `list ${vocabWords.length ? "" : "empty"}`;
+  $("vocabList").innerHTML = vocabWords.length
+    ? vocabWords.map(vocabCard).join("")
+    : "まだ記録がありません";
+}
+
+function renderVocabStats() {
+  const today = fmt(new Date());
+
+  $("vocabTotalCount").textContent = `${vocabWords.length}語`;
+  $("vocabTodayCount").textContent = `${vocabWords.filter((w) => w.learnedAt === today).length}語`;
+  $("vocabWeakCount").textContent = `${vocabWords.filter((w) => w.isWeak).length}語`;
+}
+
+function renderVocab() {
+  renderVocabList();
+  renderVocabStats();
+}
+
 /* Streak */
 
 function calcStreak() {
@@ -1047,6 +1181,67 @@ document.addEventListener("click", async (event) => {
   }
 });
 
+/* Delete vocab word */
+
+document.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-delete-vocab]");
+
+  if (!button) return;
+
+  try {
+    await deleteVocabWord(button.dataset.deleteVocab);
+    await refreshVocabWords();
+  } catch (err) {
+    console.error(err);
+    alert("削除に失敗しました。");
+  }
+});
+
+/* Review vocab word */
+
+document.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-review-vocab]");
+
+  if (!button) return;
+
+  const id = button.dataset.reviewVocab;
+  const word = vocabWords.find((w) => w.id === id);
+
+  if (!word) return;
+
+  try {
+    await updateVocabWord(id, {
+      review_count: word.reviewCount + 1,
+      last_reviewed_at: fmt(new Date())
+    });
+    await refreshVocabWords();
+  } catch (err) {
+    console.error(err);
+    alert("更新に失敗しました。");
+  }
+});
+
+/* Toggle vocab weak flag */
+
+document.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-toggle-weak-vocab]");
+
+  if (!button) return;
+
+  const id = button.dataset.toggleWeakVocab;
+  const word = vocabWords.find((w) => w.id === id);
+
+  if (!word) return;
+
+  try {
+    await updateVocabWord(id, { is_weak: !word.isWeak });
+    await refreshVocabWords();
+  } catch (err) {
+    console.error(err);
+    alert("更新に失敗しました。");
+  }
+});
+
 /* Render */
 
 function render() {
@@ -1091,12 +1286,19 @@ document.addEventListener("study-atlas:session-changed", async (event) => {
     logs = [];
     mockExams = [];
     reflections = [];
+    vocabWords = [];
     renderExamHome();
     renderReflectionList();
+    renderVocab();
     return;
   }
 
-  await Promise.all([refreshLogs(), refreshMockExams(), refreshReflections()]);
+  await Promise.all([
+    refreshLogs(),
+    refreshMockExams(),
+    refreshReflections(),
+    refreshVocabWords()
+  ]);
   materialChart?.resize();
   skillChart?.resize();
   weakTagChart?.resize();

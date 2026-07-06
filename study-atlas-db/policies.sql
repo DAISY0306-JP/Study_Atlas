@@ -6,6 +6,7 @@ alter table public.skills enable row level security;
 alter table public.study_logs enable row level security;
 alter table public.mock_exams enable row level security;
 alter table public.reflections enable row level security;
+alter table public.vocab_words enable row level security;
 alter table public.ai_notes enable row level security;
 
 create policy "subjects: owner select" on public.subjects
@@ -60,6 +61,15 @@ create policy "reflections: owner insert" on public.reflections
 create policy "reflections: owner update" on public.reflections
   for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "reflections: owner delete" on public.reflections
+  for delete using (auth.uid() = user_id);
+
+create policy "vocab_words: owner select" on public.vocab_words
+  for select using (auth.uid() = user_id);
+create policy "vocab_words: owner insert" on public.vocab_words
+  for insert with check (auth.uid() = user_id);
+create policy "vocab_words: owner update" on public.vocab_words
+  for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "vocab_words: owner delete" on public.vocab_words
   for delete using (auth.uid() = user_id);
 
 create policy "ai_notes: owner select" on public.ai_notes

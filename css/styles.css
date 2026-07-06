@@ -1006,6 +1006,24 @@ form button[type="submit"]:hover {
   margin-bottom: 0;
 }
 
+/* Vocab list */
+
+.vocab-stats {
+  margin: 0 0 18px;
+}
+
+.log-item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.log-item-actions .ghost {
+  padding: 8px 12px;
+  font-size: 12px;
+  box-shadow: none;
+}
+
 /* Tab bar (iOS-style bottom nav, mobile only) */
 
 .tab-bar {
