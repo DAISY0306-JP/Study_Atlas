@@ -71,14 +71,35 @@
     <main class="app-main">
       <section id="view-home" class="tab-view">
         <section class="home-hero card">
-          <p class="home-greeting" id="homeGreeting">おかえりなさい</p>
-
-          <div class="home-streak">
-            <span class="home-streak-icon">🔥</span>
+          <div class="home-hero-top">
             <div>
-              <strong id="homeStreak">0日</strong>
-              <span>連続記録中</span>
+              <p class="home-greeting" id="homeGreeting">おかえりなさい</p>
+              <p class="home-message" id="homeMessage">今日の学習を記録しましょう！</p>
             </div>
+
+            <div class="home-streak">
+              <span class="home-streak-icon">🔥</span>
+              <strong id="homeStreak">0日</strong>
+            </div>
+          </div>
+
+          <button type="button" class="ghost home-record-btn" id="homeRecordBtn">＋ 記録する</button>
+        </section>
+
+        <section class="home-stats">
+          <div class="home-stat-card">
+            <span class="home-stat-label">今日</span>
+            <strong id="homeToday">0分</strong>
+          </div>
+
+          <div class="home-stat-card">
+            <span class="home-stat-label">今週</span>
+            <strong id="homeWeek">0分</strong>
+          </div>
+
+          <div class="home-stat-card">
+            <span class="home-stat-label">今月</span>
+            <strong id="homeMonth">0分</strong>
           </div>
         </section>
 
@@ -101,26 +122,32 @@
           </div>
         </section>
 
-        <section class="home-stats">
-          <div class="home-stat-card">
-            <span class="home-stat-label">今日</span>
-            <strong id="homeToday">0分</strong>
+        <section class="card vocab-summary-card">
+          <div class="section-head compact-head">
+            <div>
+              <p class="section-label">Vocabulary</p>
+              <h2>単語帳</h2>
+            </div>
+
+            <button type="button" class="ghost small" id="homeVocabBtn">開く ›</button>
           </div>
 
-          <div class="home-stat-card">
-            <span class="home-stat-label">今週</span>
-            <strong id="homeWeek">0分</strong>
-          </div>
+          <div class="home-stats compact">
+            <div class="home-stat-card">
+              <span class="home-stat-label">累計</span>
+              <strong id="homeVocabTotal">0語</strong>
+            </div>
 
-          <div class="home-stat-card">
-            <span class="home-stat-label">今月</span>
-            <strong id="homeMonth">0分</strong>
-          </div>
-        </section>
+            <div class="home-stat-card">
+              <span class="home-stat-label">今日</span>
+              <strong id="homeVocabToday">0語</strong>
+            </div>
 
-        <section class="card home-message-card">
-          <p id="homeMessage">今日の学習を記録しましょう！</p>
-          <button type="button" class="primary" id="homeRecordBtn">＋ 記録する</button>
+            <div class="home-stat-card">
+              <span class="home-stat-label">苦手</span>
+              <strong id="homeVocabWeak">0語</strong>
+            </div>
+          </div>
         </section>
       </section>
 

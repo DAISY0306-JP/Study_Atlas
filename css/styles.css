@@ -145,78 +145,107 @@ body {
 
 .home-hero {
   display: grid;
-  gap: 16px;
+  gap: 12px;
+}
+
+.home-hero-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .home-greeting {
   margin: 0;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 800;
   color: var(--muted);
+}
+
+.home-message {
+  margin: 4px 0 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text);
 }
 
 .home-streak {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .home-streak-icon {
-  font-size: 34px;
+  font-size: 22px;
 }
 
 .home-streak strong {
-  display: block;
-  font-size: 34px;
+  font-size: 22px;
   line-height: 1;
   letter-spacing: -0.04em;
 }
 
-.home-streak span {
-  color: var(--muted);
+.home-record-btn {
+  width: 100%;
+  min-height: 40px;
   font-size: 13px;
-  font-weight: 800;
+  padding: 0;
 }
 
 .home-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin: 18px 0;
+  gap: 8px;
+  margin: 0 0 14px;
 }
 
 .home-stat-card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 14px;
+  border-radius: 18px;
+  padding: 10px 12px;
   box-shadow: var(--shadow-soft);
   display: grid;
-  gap: 6px;
+  gap: 4px;
 }
 
 .home-stat-label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 900;
   color: var(--muted);
 }
 
 .home-stat-card strong {
-  font-size: 20px;
+  font-size: 17px;
   letter-spacing: -0.03em;
 }
 
-.home-message-card {
-  display: grid;
-  gap: 14px;
-  text-align: center;
+.home-stats.compact {
+  margin: 0;
 }
 
-.home-message-card p {
-  margin: 0;
+.home-stats.compact .home-stat-card {
+  padding: 8px 10px;
+}
+
+.home-stats.compact .home-stat-card strong {
   font-size: 15px;
-  font-weight: 800;
-  color: var(--text);
+}
+
+.compact-head {
+  margin-bottom: 12px;
+}
+
+.compact-head h2 {
+  font-size: 17px;
+}
+
+.ghost.small {
+  min-height: 0;
+  padding: 6px 12px;
+  font-size: 12px;
+  box-shadow: none;
 }
 
 .exam-card {
@@ -266,6 +295,26 @@ body {
   margin-top: 4px;
   font-size: 18px;
   letter-spacing: -0.03em;
+}
+
+/* Home tab is a "see it all without scrolling" screen — cards here
+   run tighter than the rest of the app, and the exam D-day card keeps
+   its 2-column layout on phones instead of the stacked mobile default. */
+#view-home .card {
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+#view-home .exam-card {
+  grid-template-columns: 1.3fr 1fr;
+}
+
+#view-home .exam-card-main strong {
+  font-size: 26px;
+}
+
+#view-home .vocab-summary-card {
+  margin-bottom: 0;
 }
 
 /* Mock exam list */

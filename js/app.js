@@ -622,6 +622,11 @@ tabButtons.forEach((button) => {
 
 $("homeRecordBtn")?.addEventListener("click", () => switchTab("view-record"));
 
+$("homeVocabBtn")?.addEventListener("click", () => {
+  switchTab("view-dashboard");
+  document.querySelector('[data-subview="sub-vocab"]')?.click();
+});
+
 /* Dashboard sub-tabs (mobile) */
 
 const segmentButtons = document.querySelectorAll(".segment-btn");
@@ -979,10 +984,17 @@ function renderVocabList() {
 
 function renderVocabStats() {
   const today = fmt(new Date());
+  const totalCount = vocabWords.length;
+  const todayCount = vocabWords.filter((w) => w.learnedAt === today).length;
+  const weakCount = vocabWords.filter((w) => w.isWeak).length;
 
-  $("vocabTotalCount").textContent = `${vocabWords.length}語`;
-  $("vocabTodayCount").textContent = `${vocabWords.filter((w) => w.learnedAt === today).length}語`;
-  $("vocabWeakCount").textContent = `${vocabWords.filter((w) => w.isWeak).length}語`;
+  $("vocabTotalCount").textContent = `${totalCount}語`;
+  $("vocabTodayCount").textContent = `${todayCount}語`;
+  $("vocabWeakCount").textContent = `${weakCount}語`;
+
+  $("homeVocabTotal").textContent = `${totalCount}語`;
+  $("homeVocabToday").textContent = `${todayCount}語`;
+  $("homeVocabWeak").textContent = `${weakCount}語`;
 }
 
 function renderVocab() {
