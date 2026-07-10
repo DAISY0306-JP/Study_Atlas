@@ -1,58 +1,37 @@
 <!doctype html>
 <html lang="ja">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <title>Study Atlas</title>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Study Atlas</title>
 
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#58cc6c" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#58cc6c" />
 
-  <link rel="apple-touch-icon" href="icons/icon-180.png" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Study Atlas" />
+    <link rel="apple-touch-icon" href="icons/icon-180.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Study Atlas" />
 
-  <link rel="stylesheet" href="css/styles.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
+    <link rel="stylesheet" href="css/styles.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1"
+      integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.2"
+      integrity="sha384-sgcvElP/LlNRtORGYFLO/9K/bENcpJK19HgvqslWXog6d8f/Va4TpltGiBlGntCM"
+      crossorigin="anonymous"
+    ></script>
+  </head>
 
-<body>
-  <div id="authScreen" class="auth-screen" hidden>
-    <div class="auth-card">
-      <div class="brand">
-        <img src="icons/icon-192.png" alt="" class="brand-icon" />
-        <div>
-          <p class="brand-name">Study Atlas</p>
-          <p class="brand-sub">Korean Study Log</p>
-        </div>
-      </div>
-
-      <p class="hero-copy">学習ログはSupabaseアカウントに保存されます。</p>
-
-      <label>
-        メールアドレス
-        <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email" />
-      </label>
-
-      <label>
-        パスワード
-        <input type="password" id="authPassword" placeholder="8文字以上" autocomplete="current-password" />
-      </label>
-
-      <p id="authError" class="auth-error"></p>
-
-      <div class="auth-actions">
-        <button type="button" id="signInBtn" class="primary">ログイン</button>
-        <button type="button" id="signUpBtn" class="ghost">新規登録</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="app" hidden>
-    <header class="app-hero">
-      <div class="hero-top">
+  <body>
+    <div id="authScreen" class="auth-screen" hidden>
+      <div class="auth-card">
         <div class="brand">
           <img src="icons/icon-192.png" alt="" class="brand-icon" />
           <div>
@@ -61,645 +40,730 @@
           </div>
         </div>
 
-        <div class="hero-actions">
-          <button id="reloadBtn" class="ghost" type="button">🔄 更新</button>
-          <button id="sampleBtn" class="ghost" type="button">＋ Sample</button>
-          <button id="logoutBtn" class="ghost" type="button">ログアウト</button>
+        <p class="hero-copy">学習ログはSupabaseアカウントに保存されます。</p>
+
+        <label>
+          メールアドレス
+          <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email" />
+        </label>
+
+        <label>
+          パスワード
+          <input
+            type="password"
+            id="authPassword"
+            placeholder="8文字以上"
+            autocomplete="current-password"
+          />
+        </label>
+
+        <p id="authError" class="auth-error"></p>
+
+        <div class="auth-actions">
+          <button type="button" id="signInBtn" class="primary">ログイン</button>
+          <button type="button" id="signUpBtn" class="ghost">新規登録</button>
         </div>
       </div>
-    </header>
+    </div>
 
-    <main class="app-main">
-      <section id="view-home" class="tab-view">
-        <section class="home-hero card">
-          <div class="home-hero-top">
+    <div class="app" hidden>
+      <header class="app-hero">
+        <div class="hero-top">
+          <div class="brand">
+            <img src="icons/icon-192.png" alt="" class="brand-icon" />
             <div>
-              <p class="home-greeting" id="homeGreeting">おかえりなさい</p>
-              <p class="home-message" id="homeMessage">今日の学習を記録しましょう！</p>
-            </div>
-
-            <div class="home-streak">
-              <span class="home-streak-icon">🔥</span>
-              <strong id="homeStreak">0日</strong>
+              <p class="brand-name">Study Atlas</p>
+              <p class="brand-sub">Korean Study Log</p>
             </div>
           </div>
 
-          <button type="button" class="ghost home-record-btn" id="homeRecordBtn">＋ 記録する</button>
-        </section>
-
-        <section class="home-stats">
-          <div class="home-stat-card">
-            <span class="home-stat-label">今日</span>
-            <strong id="homeToday">0分</strong>
+          <div class="hero-actions">
+            <button id="reloadBtn" class="ghost" type="button">🔄 更新</button>
+            <button id="sampleBtn" class="ghost" type="button">＋ Sample</button>
+            <button id="logoutBtn" class="ghost" type="button">ログアウト</button>
           </div>
+        </div>
+      </header>
 
-          <div class="home-stat-card">
-            <span class="home-stat-label">今週</span>
-            <strong id="homeWeek">0分</strong>
-          </div>
+      <main class="app-main">
+        <section id="view-home" class="tab-view">
+          <section class="home-hero card">
+            <div class="home-hero-top">
+              <div>
+                <p class="home-greeting" id="homeGreeting">おかえりなさい</p>
+                <p class="home-message" id="homeMessage">今日の学習を記録しましょう！</p>
+              </div>
 
-          <div class="home-stat-card">
-            <span class="home-stat-label">今月</span>
-            <strong id="homeMonth">0分</strong>
-          </div>
-        </section>
-
-        <section class="card exam-card">
-          <div class="exam-card-main">
-            <span class="exam-card-label">試験まであと</span>
-            <strong id="examDday">--日</strong>
-          </div>
-
-          <div class="exam-card-side">
-            <div>
-              <span>目標点</span>
-              <strong id="examTarget">--点</strong>
+              <div class="home-streak">
+                <span class="home-streak-icon">🔥</span>
+                <strong id="homeStreak">0日</strong>
+              </div>
             </div>
 
-            <div>
-              <span>最新模試</span>
-              <strong id="examLatest">--点</strong>
-            </div>
-          </div>
-        </section>
+            <button type="button" class="ghost home-record-btn" id="homeRecordBtn">
+              ＋ 記録する
+            </button>
+          </section>
 
-        <section class="card vocab-summary-card">
-          <div class="section-head compact-head">
-            <div>
-              <p class="section-label">Vocabulary</p>
-              <h2>単語帳</h2>
-            </div>
-
-            <button type="button" class="ghost small" id="homeVocabBtn">開く ›</button>
-          </div>
-
-          <div class="home-stats compact">
-            <div class="home-stat-card">
-              <span class="home-stat-label">累計</span>
-              <strong id="homeVocabTotal">0語</strong>
-            </div>
-
+          <section class="home-stats">
             <div class="home-stat-card">
               <span class="home-stat-label">今日</span>
-              <strong id="homeVocabToday">0語</strong>
+              <strong id="homeToday">0分</strong>
             </div>
 
             <div class="home-stat-card">
-              <span class="home-stat-label">苦手</span>
-              <strong id="homeVocabWeak">0語</strong>
-            </div>
-          </div>
-        </section>
-      </section>
-
-      <section id="view-record" class="tab-view is-hidden-mobile">
-        <section class="summary-panel">
-          <div class="summary-main">
-            <span class="summary-label">This month</span>
-            <strong id="monthTotal">0分</strong>
-            <p>今月の韓国語学習</p>
-          </div>
-
-          <div class="summary-side">
-            <div>
-              <span>Week</span>
-              <strong id="weekTotal">0分</strong>
+              <span class="home-stat-label">今週</span>
+              <strong id="homeWeek">0分</strong>
             </div>
 
-            <div>
-              <span>Streak</span>
-              <strong id="streak">0日</strong>
+            <div class="home-stat-card">
+              <span class="home-stat-label">今月</span>
+              <strong id="homeMonth">0分</strong>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <section class="quick-actions-grid">
-          <button
-            type="button"
-            class="quick-tile"
-            data-minutes="15"
-            data-material="Duolingo"
-            data-skill="全体"
-            data-content="Duolingo"
-          >
-            <span class="quick-tile-body">
-              <span class="quick-tile-icon">🟢</span>
-              <span class="quick-tile-label">Duolingo</span>
-              <span class="quick-tile-meta">15分・全体</span>
-            </span>
-          </button>
+          <section class="card exam-card">
+            <div class="exam-card-main">
+              <span class="exam-card-label">試験まであと</span>
+              <strong id="examDday">--日</strong>
+            </div>
 
-          <button
-            type="button"
-            class="quick-tile"
-            data-minutes="20"
-            data-material="TOPIK単語"
-            data-skill="単語"
-            data-content="TOPIK単語"
-          >
-            <span class="quick-tile-body">
-              <span class="quick-tile-icon">📚</span>
-              <span class="quick-tile-label">TOPIK単語</span>
-              <span class="quick-tile-meta">20分・単語</span>
-            </span>
-          </button>
+            <div class="exam-card-side">
+              <div>
+                <span>目標点</span>
+                <strong id="examTarget">--点</strong>
+              </div>
 
-          <button
-            type="button"
-            class="quick-tile"
-            data-minutes="15"
-            data-material="ChatGPT"
-            data-skill="文法"
-            data-content="韓国語の質問・文法整理"
-          >
-            <span class="quick-tile-body">
-              <span class="quick-tile-icon">🤖</span>
-              <span class="quick-tile-label">ChatGPT</span>
-              <span class="quick-tile-meta">15分・文法</span>
-            </span>
-          </button>
+              <div>
+                <span>最新模試</span>
+                <strong id="examLatest">--点</strong>
+              </div>
+            </div>
+          </section>
+
+          <section class="card vocab-summary-card">
+            <div class="section-head compact-head">
+              <div>
+                <p class="section-label">Vocabulary</p>
+                <h2>単語帳</h2>
+              </div>
+
+              <button type="button" class="ghost small" id="homeVocabBtn">開く ›</button>
+            </div>
+
+            <div class="home-stats compact">
+              <div class="home-stat-card">
+                <span class="home-stat-label">累計</span>
+                <strong id="homeVocabTotal">0語</strong>
+              </div>
+
+              <div class="home-stat-card">
+                <span class="home-stat-label">今日</span>
+                <strong id="homeVocabToday">0語</strong>
+              </div>
+
+              <div class="home-stat-card">
+                <span class="home-stat-label">苦手</span>
+                <strong id="homeVocabWeak">0語</strong>
+              </div>
+            </div>
+          </section>
         </section>
 
-        <details class="card quick-record-card">
-          <summary class="quick-record-summary">
-            <span>＋ カスタムで記録する</span>
-            <span class="chevron">›</span>
-          </summary>
-
-          <form id="logForm">
-            <div class="form-grid">
-              <label>
-                日付
-                <input type="date" id="date" required />
-              </label>
-
-              <label>
-                学習時間（分）
-                <input type="number" id="minutes" min="1" placeholder="30" required />
-              </label>
-
-              <label>
-                教材
-                <select id="material">
-                  <option>Duolingo</option>
-                  <option>TOPIK単語</option>
-                  <option>TOPIK文法</option>
-                  <option>できる韓国語</option>
-                  <option>YouTube</option>
-                  <option>ドラマ</option>
-                  <option>ChatGPT</option>
-                  <option>その他</option>
-                </select>
-              </label>
-
-              <label>
-                スキル
-                <select id="skill">
-                  <option>単語</option>
-                  <option>文法</option>
-                  <option>読解</option>
-                  <option>リスニング</option>
-                  <option>スピーキング</option>
-                  <option>ライティング</option>
-                  <option>発音</option>
-                  <option>文化・表現</option>
-                  <option>全体</option>
-                </select>
-              </label>
+        <section id="view-record" class="tab-view is-hidden-mobile">
+          <section class="summary-panel">
+            <div class="summary-main">
+              <span class="summary-label">This month</span>
+              <strong id="monthTotal">0分</strong>
+              <p>今月の韓国語学習</p>
             </div>
 
-            <fieldset class="choice-group">
-              <legend>理解度</legend>
-
-              <div class="choice-list">
-                <label class="choice-pill">
-                  <input type="radio" name="understanding" value="5" checked />
-                  <span>🌟 定着した</span>
-                </label>
-
-                <label class="choice-pill">
-                  <input type="radio" name="understanding" value="4" />
-                  <span>🙂 だいたいOK</span>
-                </label>
-
-                <label class="choice-pill">
-                  <input type="radio" name="understanding" value="3" />
-                  <span>🔁 復習したい</span>
-                </label>
-
-                <label class="choice-pill">
-                  <input type="radio" name="understanding" value="2" />
-                  <span>🌀 まだ曖昧</span>
-                </label>
-
-                <label class="choice-pill">
-                  <input type="radio" name="understanding" value="1" />
-                  <span>🌱 未理解</span>
-                </label>
-              </div>
-            </fieldset>
-
-            <fieldset class="choice-group weak-tags-field" id="weakTagsField" hidden>
-              <legend>苦手ポイント（任意）</legend>
-
-              <div class="choice-list weak-tags-group" data-weak-skill="読解" hidden>
-                <label class="choice-pill">
-                  <input type="checkbox" name="weakTag" value="時間不足" />
-                  <span>時間不足</span>
-                </label>
-                <label class="choice-pill">
-                  <input type="checkbox" name="weakTag" value="文法" />
-                  <span>文法</span>
-                </label>
-                <label class="choice-pill">
-                  <input type="checkbox" name="weakTag" value="語彙" />
-                  <span>語彙</span>
-                </label>
+            <div class="summary-side">
+              <div>
+                <span>Week</span>
+                <strong id="weekTotal">0分</strong>
               </div>
 
-              <div class="choice-list weak-tags-group" data-weak-skill="ライティング" hidden>
-                <label class="choice-pill">
-                  <input type="checkbox" name="weakTag" value="助詞" />
-                  <span>助詞</span>
-                </label>
-                <label class="choice-pill">
-                  <input type="checkbox" name="weakTag" value="接続詞" />
-                  <span>接続詞</span>
-                </label>
-                <label class="choice-pill">
-                  <input type="checkbox" name="weakTag" value="語尾" />
-                  <span>語尾</span>
-                </label>
-                <label class="choice-pill">
-                  <input type="checkbox" name="weakTag" value="語彙不足" />
-                  <span>語彙不足</span>
-                </label>
+              <div>
+                <span>Streak</span>
+                <strong id="streak">0日</strong>
               </div>
+            </div>
+          </section>
 
-              <div class="choice-list weak-tags-group" data-weak-skill="リスニング" hidden>
-                <label class="choice-pill">
-                  <input type="checkbox" name="weakTag" value="数字" />
-                  <span>数字</span>
-                </label>
-                <label class="choice-pill">
-                  <input type="checkbox" name="weakTag" value="敬語" />
-                  <span>敬語</span>
-                </label>
-                <label class="choice-pill">
-                  <input type="checkbox" name="weakTag" value="会話問題" />
-                  <span>会話問題</span>
-                </label>
-                <label class="choice-pill">
-                  <input type="checkbox" name="weakTag" value="スピード" />
-                  <span>スピード</span>
-                </label>
-              </div>
-            </fieldset>
-
-            <label class="check">
-              <input type="checkbox" id="review" />
-              復習リストに入れる
-            </label>
-
-            <label>
-              学習内容
-              <textarea id="content" placeholder="例：지만 / 그런데 / TOPIK単語30個"></textarea>
-            </label>
-
-            <label>
-              メモ
-              <textarea id="memo" placeholder="気づき・質問・Notionに残したいこと"></textarea>
-            </label>
-
-            <button type="submit" class="primary" id="logFormSubmitBtn">＋ 記録する</button>
-            <button type="button" class="ghost form-cancel-btn" id="logFormCancelBtn" hidden>
-              編集をキャンセル
+          <section class="quick-actions-grid">
+            <button
+              type="button"
+              class="quick-tile"
+              data-minutes="15"
+              data-material="Duolingo"
+              data-skill="全体"
+              data-content="Duolingo"
+            >
+              <span class="quick-tile-body">
+                <span class="quick-tile-icon">🟢</span>
+                <span class="quick-tile-label">Duolingo</span>
+                <span class="quick-tile-meta">15分・全体</span>
+              </span>
             </button>
-          </form>
-        </details>
-      </section>
 
-      <section id="view-dashboard" class="tab-view is-hidden-mobile">
-        <div class="dashboard-heading">
-          <p class="section-label">Dashboard</p>
-          <h2>学習の記録</h2>
-        </div>
+            <button
+              type="button"
+              class="quick-tile"
+              data-minutes="20"
+              data-material="TOPIK単語"
+              data-skill="単語"
+              data-content="TOPIK単語"
+            >
+              <span class="quick-tile-body">
+                <span class="quick-tile-icon">📚</span>
+                <span class="quick-tile-label">TOPIK単語</span>
+                <span class="quick-tile-meta">20分・単語</span>
+              </span>
+            </button>
 
-        <div class="segmented-control">
-          <button type="button" class="segment-btn active" data-subview="sub-charts">グラフ</button>
-          <button type="button" class="segment-btn" data-subview="sub-calendar">カレンダー</button>
-          <button type="button" class="segment-btn" data-subview="sub-history">履歴</button>
-          <button type="button" class="segment-btn" data-subview="sub-exams">過去問</button>
-          <button type="button" class="segment-btn" data-subview="sub-reflections">振り返り</button>
-          <button type="button" class="segment-btn" data-subview="sub-vocab">単語帳</button>
-        </div>
+            <button
+              type="button"
+              class="quick-tile"
+              data-minutes="15"
+              data-material="ChatGPT"
+              data-skill="文法"
+              data-content="韓国語の質問・文法整理"
+            >
+              <span class="quick-tile-body">
+                <span class="quick-tile-icon">🤖</span>
+                <span class="quick-tile-label">ChatGPT</span>
+                <span class="quick-tile-meta">15分・文法</span>
+              </span>
+            </button>
+          </section>
 
-        <section class="insight-grid">
-          <div id="sub-charts" class="dash-subview">
-            <section class="card chart-card">
-              <div class="section-head">
-                <div>
-                  <p class="section-label">Materials</p>
-                  <h2>教材別の学習時間</h2>
-                </div>
-              </div>
+          <details class="card quick-record-card">
+            <summary class="quick-record-summary">
+              <span>＋ カスタムで記録する</span>
+              <span class="chevron">›</span>
+            </summary>
 
-              <canvas id="materialChart"></canvas>
-            </section>
-
-            <section class="card chart-card">
-              <div class="section-head">
-                <div>
-                  <p class="section-label">Skills</p>
-                  <h2>スキル別の学習時間</h2>
-                </div>
-              </div>
-
-              <canvas id="skillChart"></canvas>
-            </section>
-
-            <section class="card chart-card">
-              <div class="section-head">
-                <div>
-                  <p class="section-label">Weak Points</p>
-                  <h2>苦手ポイントの頻度</h2>
-                </div>
-              </div>
-
-              <canvas id="weakTagChart"></canvas>
-            </section>
-          </div>
-
-          <div id="sub-calendar" class="dash-subview is-hidden-mobile">
-            <section class="card">
-              <div class="section-head">
-                <div>
-                  <p class="section-label">Calendar</p>
-                  <h2 id="calendarMonthLabel">-</h2>
-                </div>
-
-                <div class="calendar-nav">
-                  <button type="button" class="ghost small" id="calendarPrevBtn" aria-label="前の月">‹</button>
-                  <button type="button" class="ghost small" id="calendarNextBtn" aria-label="次の月">›</button>
-                </div>
-              </div>
-
-              <div class="calendar-weekdays">
-                <span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span>
-              </div>
-
-              <div id="calendarGrid" class="calendar-grid"></div>
-
-              <div class="calendar-legend">
-                <span>少ない</span>
-                <span class="legend-swatch" data-level="0"></span>
-                <span class="legend-swatch" data-level="1"></span>
-                <span class="legend-swatch" data-level="2"></span>
-                <span class="legend-swatch" data-level="3"></span>
-                <span class="legend-swatch" data-level="4"></span>
-                <span>多い</span>
-              </div>
-            </section>
-          </div>
-
-          <div id="sub-history" class="dash-subview is-hidden-mobile">
-            <section class="card">
-              <div class="section-head">
-                <div>
-                  <p class="section-label">Review</p>
-                  <h2>要復習リスト</h2>
-                </div>
-              </div>
-
-              <div id="reviewList" class="list empty">まだありません</div>
-            </section>
-
-            <section class="card log-card">
-              <div class="section-head">
-                <div>
-                  <p class="section-label">History</p>
-                  <h2>ログ一覧</h2>
-                </div>
-              </div>
-
-              <div id="logList" class="list empty">まだ記録がありません</div>
-            </section>
-          </div>
-
-          <div id="sub-exams" class="dash-subview is-hidden-mobile">
-            <section class="card">
-              <div class="section-head">
-                <div>
-                  <p class="section-label">Mock Exam</p>
-                  <h2>過去問スコアを記録</h2>
-                </div>
-              </div>
-
-              <form id="examForm">
-                <div class="form-grid">
-                  <label>
-                    回数
-                    <input type="number" id="examNo" min="1" placeholder="1" />
-                  </label>
-
-                  <label>
-                    実施日
-                    <input type="date" id="examDate" required />
-                  </label>
-
-                  <label>
-                    読解（0〜100）
-                    <input type="number" id="examReading" min="0" max="100" placeholder="60" required />
-                  </label>
-
-                  <label>
-                    作文（0〜100）
-                    <input type="number" id="examWriting" min="0" max="100" placeholder="45" required />
-                  </label>
-
-                  <label>
-                    リスニング（0〜100）
-                    <input type="number" id="examListening" min="0" max="100" placeholder="40" required />
-                  </label>
-                </div>
-
+            <form id="logForm">
+              <div class="form-grid">
                 <label>
-                  メモ
-                  <textarea id="examMemo" placeholder="時間配分・感触など"></textarea>
-                </label>
-
-                <button type="submit" class="primary">＋ 記録する</button>
-              </form>
-            </section>
-
-            <section class="card chart-card">
-              <div class="section-head">
-                <div>
-                  <p class="section-label">Trend</p>
-                  <h2>分野別の点数推移</h2>
-                </div>
-              </div>
-
-              <canvas id="examSectionChart"></canvas>
-            </section>
-
-            <section class="card chart-card">
-              <div class="section-head">
-                <div>
-                  <p class="section-label">Trend</p>
-                  <h2>合計点の推移</h2>
-                </div>
-              </div>
-
-              <canvas id="examTotalChart"></canvas>
-            </section>
-
-            <section class="card log-card">
-              <div class="section-head">
-                <div>
-                  <p class="section-label">History</p>
-                  <h2>過去問履歴</h2>
-                </div>
-              </div>
-
-              <div id="examList" class="list empty">まだ記録がありません</div>
-            </section>
-          </div>
-
-          <div id="sub-reflections" class="dash-subview is-hidden-mobile">
-            <section class="card">
-              <div class="section-head">
-                <div>
-                  <p class="section-label">Reflection</p>
-                  <h2>振り返りを記録</h2>
-                </div>
-              </div>
-
-              <div class="segmented-control reflection-type-toggle">
-                <button type="button" class="segment-btn active" data-reflection-type="weekly">週次</button>
-                <button type="button" class="segment-btn" data-reflection-type="monthly">月次</button>
-              </div>
-
-              <form id="reflectionForm">
-                <label>
-                  <span id="reflectionDateLabel">週の開始日</span>
-                  <input type="date" id="reflectionDate" required />
+                  日付
+                  <input type="date" id="date" required />
                 </label>
 
                 <label>
-                  <span id="reflectionGoodLabel">今週できたこと</span>
-                  <textarea id="reflectionGood"></textarea>
+                  学習時間（分）
+                  <input type="number" id="minutes" min="1" placeholder="30" required />
                 </label>
 
                 <label>
-                  <span id="reflectionWeakLabel">苦手だったこと</span>
-                  <textarea id="reflectionWeak"></textarea>
+                  教材
+                  <select id="material">
+                    <option>Duolingo</option>
+                    <option>TOPIK単語</option>
+                    <option>TOPIK文法</option>
+                    <option>できる韓国語</option>
+                    <option>YouTube</option>
+                    <option>ドラマ</option>
+                    <option>ChatGPT</option>
+                    <option>その他</option>
+                  </select>
                 </label>
 
                 <label>
-                  <span id="reflectionNextLabel">来週の目標</span>
-                  <textarea id="reflectionNext"></textarea>
+                  スキル
+                  <select id="skill">
+                    <option>単語</option>
+                    <option>文法</option>
+                    <option>読解</option>
+                    <option>リスニング</option>
+                    <option>スピーキング</option>
+                    <option>ライティング</option>
+                    <option>発音</option>
+                    <option>文化・表現</option>
+                    <option>全体</option>
+                  </select>
                 </label>
-
-                <button type="submit" class="primary">＋ 記録する</button>
-              </form>
-            </section>
-
-            <section class="card log-card">
-              <div class="section-head">
-                <div>
-                  <p class="section-label">History</p>
-                  <h2>振り返り履歴</h2>
-                </div>
               </div>
 
-              <div id="reflectionList" class="list empty">まだ記録がありません</div>
-            </section>
-          </div>
+              <fieldset class="choice-group">
+                <legend>理解度</legend>
 
-          <div id="sub-vocab" class="dash-subview is-hidden-mobile">
-            <section class="card">
-              <div class="section-head">
-                <div>
-                  <p class="section-label">Vocabulary</p>
-                  <h2>単語を追加</h2>
-                </div>
-              </div>
-
-              <form id="vocabForm">
-                <div class="form-grid">
-                  <label>
-                    単語
-                    <input type="text" id="vocabWord" placeholder="예를 들면" required />
+                <div class="choice-list">
+                  <label class="choice-pill">
+                    <input type="radio" name="understanding" value="5" checked />
+                    <span>🌟 定着した</span>
                   </label>
 
-                  <label>
-                    意味
-                    <input type="text" id="vocabMeaning" placeholder="例えば" />
+                  <label class="choice-pill">
+                    <input type="radio" name="understanding" value="4" />
+                    <span>🙂 だいたいOK</span>
+                  </label>
+
+                  <label class="choice-pill">
+                    <input type="radio" name="understanding" value="3" />
+                    <span>🔁 復習したい</span>
+                  </label>
+
+                  <label class="choice-pill">
+                    <input type="radio" name="understanding" value="2" />
+                    <span>🌀 まだ曖昧</span>
+                  </label>
+
+                  <label class="choice-pill">
+                    <input type="radio" name="understanding" value="1" />
+                    <span>🌱 未理解</span>
+                  </label>
+                </div>
+              </fieldset>
+
+              <fieldset class="choice-group weak-tags-field" id="weakTagsField" hidden>
+                <legend>苦手ポイント（任意）</legend>
+
+                <div class="choice-list weak-tags-group" data-weak-skill="読解" hidden>
+                  <label class="choice-pill">
+                    <input type="checkbox" name="weakTag" value="時間不足" />
+                    <span>時間不足</span>
+                  </label>
+                  <label class="choice-pill">
+                    <input type="checkbox" name="weakTag" value="文法" />
+                    <span>文法</span>
+                  </label>
+                  <label class="choice-pill">
+                    <input type="checkbox" name="weakTag" value="語彙" />
+                    <span>語彙</span>
                   </label>
                 </div>
 
-                <label class="check">
-                  <input type="checkbox" id="vocabWeak" />
-                  苦手単語としてマーク
-                </label>
-
-                <button type="submit" class="primary">＋ 覚えた単語を追加</button>
-              </form>
-            </section>
-
-            <section class="home-stats vocab-stats">
-              <div class="home-stat-card">
-                <span class="home-stat-label">累計語数</span>
-                <strong id="vocabTotalCount">0語</strong>
-              </div>
-
-              <div class="home-stat-card">
-                <span class="home-stat-label">今日覚えた</span>
-                <strong id="vocabTodayCount">0語</strong>
-              </div>
-
-              <div class="home-stat-card">
-                <span class="home-stat-label">苦手単語</span>
-                <strong id="vocabWeakCount">0語</strong>
-              </div>
-            </section>
-
-            <section class="card log-card">
-              <div class="section-head">
-                <div>
-                  <p class="section-label">Words</p>
-                  <h2>単語一覧</h2>
+                <div class="choice-list weak-tags-group" data-weak-skill="ライティング" hidden>
+                  <label class="choice-pill">
+                    <input type="checkbox" name="weakTag" value="助詞" />
+                    <span>助詞</span>
+                  </label>
+                  <label class="choice-pill">
+                    <input type="checkbox" name="weakTag" value="接続詞" />
+                    <span>接続詞</span>
+                  </label>
+                  <label class="choice-pill">
+                    <input type="checkbox" name="weakTag" value="語尾" />
+                    <span>語尾</span>
+                  </label>
+                  <label class="choice-pill">
+                    <input type="checkbox" name="weakTag" value="語彙不足" />
+                    <span>語彙不足</span>
+                  </label>
                 </div>
-              </div>
 
-              <div id="vocabList" class="list empty">まだ記録がありません</div>
-            </section>
-          </div>
+                <div class="choice-list weak-tags-group" data-weak-skill="リスニング" hidden>
+                  <label class="choice-pill">
+                    <input type="checkbox" name="weakTag" value="数字" />
+                    <span>数字</span>
+                  </label>
+                  <label class="choice-pill">
+                    <input type="checkbox" name="weakTag" value="敬語" />
+                    <span>敬語</span>
+                  </label>
+                  <label class="choice-pill">
+                    <input type="checkbox" name="weakTag" value="会話問題" />
+                    <span>会話問題</span>
+                  </label>
+                  <label class="choice-pill">
+                    <input type="checkbox" name="weakTag" value="スピード" />
+                    <span>スピード</span>
+                  </label>
+                </div>
+              </fieldset>
+
+              <label class="check">
+                <input type="checkbox" id="review" />
+                復習リストに入れる
+              </label>
+
+              <label>
+                学習内容
+                <textarea id="content" placeholder="例：지만 / 그런데 / TOPIK単語30個"></textarea>
+              </label>
+
+              <label>
+                メモ
+                <textarea id="memo" placeholder="気づき・質問・Notionに残したいこと"></textarea>
+              </label>
+
+              <button type="submit" class="primary" id="logFormSubmitBtn">＋ 記録する</button>
+              <button type="button" class="ghost form-cancel-btn" id="logFormCancelBtn" hidden>
+                編集をキャンセル
+              </button>
+            </form>
+          </details>
         </section>
-      </section>
-    </main>
 
-    <nav class="tab-bar">
-      <button type="button" class="tab-btn active" data-view="view-home">
-        <span class="tab-icon">🏠</span>
-        <span>ホーム</span>
-      </button>
+        <section id="view-dashboard" class="tab-view is-hidden-mobile">
+          <div class="dashboard-heading">
+            <p class="section-label">Dashboard</p>
+            <h2>学習の記録</h2>
+          </div>
 
-      <button type="button" class="tab-btn" data-view="view-record">
-        <span class="tab-icon">✏️</span>
-        <span>記録</span>
-      </button>
+          <div class="segmented-control">
+            <button type="button" class="segment-btn active" data-subview="sub-charts">
+              グラフ
+            </button>
+            <button type="button" class="segment-btn" data-subview="sub-calendar">
+              カレンダー
+            </button>
+            <button type="button" class="segment-btn" data-subview="sub-history">履歴</button>
+            <button type="button" class="segment-btn" data-subview="sub-exams">過去問</button>
+            <button type="button" class="segment-btn" data-subview="sub-reflections">
+              振り返り
+            </button>
+            <button type="button" class="segment-btn" data-subview="sub-vocab">単語帳</button>
+          </div>
 
-      <button type="button" class="tab-btn" data-view="view-dashboard">
-        <span class="tab-icon">📊</span>
-        <span>ダッシュボード</span>
-      </button>
-    </nav>
-  </div>
+          <section class="insight-grid">
+            <div id="sub-charts" class="dash-subview">
+              <section class="card chart-card">
+                <div class="section-head">
+                  <div>
+                    <p class="section-label">Materials</p>
+                    <h2>教材別の学習時間</h2>
+                  </div>
+                </div>
 
-  <script src="js/config.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/app.js"></script>
-</body>
+                <canvas id="materialChart"></canvas>
+              </section>
+
+              <section class="card chart-card">
+                <div class="section-head">
+                  <div>
+                    <p class="section-label">Skills</p>
+                    <h2>スキル別の学習時間</h2>
+                  </div>
+                </div>
+
+                <canvas id="skillChart"></canvas>
+              </section>
+
+              <section class="card chart-card">
+                <div class="section-head">
+                  <div>
+                    <p class="section-label">Weak Points</p>
+                    <h2>苦手ポイントの頻度</h2>
+                  </div>
+                </div>
+
+                <canvas id="weakTagChart"></canvas>
+              </section>
+            </div>
+
+            <div id="sub-calendar" class="dash-subview is-hidden-mobile">
+              <section class="card">
+                <div class="section-head">
+                  <div>
+                    <p class="section-label">Calendar</p>
+                    <h2 id="calendarMonthLabel">-</h2>
+                  </div>
+
+                  <div class="calendar-nav">
+                    <button
+                      type="button"
+                      class="ghost small"
+                      id="calendarPrevBtn"
+                      aria-label="前の月"
+                    >
+                      ‹
+                    </button>
+                    <button
+                      type="button"
+                      class="ghost small"
+                      id="calendarNextBtn"
+                      aria-label="次の月"
+                    >
+                      ›
+                    </button>
+                  </div>
+                </div>
+
+                <div class="calendar-weekdays">
+                  <span>日</span><span>月</span><span>火</span><span>水</span><span>木</span
+                  ><span>金</span><span>土</span>
+                </div>
+
+                <div id="calendarGrid" class="calendar-grid"></div>
+
+                <div class="calendar-legend">
+                  <span>少ない</span>
+                  <span class="legend-swatch" data-level="0"></span>
+                  <span class="legend-swatch" data-level="1"></span>
+                  <span class="legend-swatch" data-level="2"></span>
+                  <span class="legend-swatch" data-level="3"></span>
+                  <span class="legend-swatch" data-level="4"></span>
+                  <span>多い</span>
+                </div>
+              </section>
+            </div>
+
+            <div id="sub-history" class="dash-subview is-hidden-mobile">
+              <section class="card">
+                <div class="section-head">
+                  <div>
+                    <p class="section-label">Review</p>
+                    <h2>要復習リスト</h2>
+                  </div>
+                </div>
+
+                <div id="reviewList" class="list empty">まだありません</div>
+              </section>
+
+              <section class="card log-card">
+                <div class="section-head">
+                  <div>
+                    <p class="section-label">History</p>
+                    <h2>ログ一覧</h2>
+                  </div>
+                </div>
+
+                <div id="logList" class="list empty">まだ記録がありません</div>
+              </section>
+            </div>
+
+            <div id="sub-exams" class="dash-subview is-hidden-mobile">
+              <section class="card">
+                <div class="section-head">
+                  <div>
+                    <p class="section-label">Mock Exam</p>
+                    <h2>過去問スコアを記録</h2>
+                  </div>
+                </div>
+
+                <form id="examForm">
+                  <div class="form-grid">
+                    <label>
+                      回数
+                      <input type="number" id="examNo" min="1" placeholder="1" />
+                    </label>
+
+                    <label>
+                      実施日
+                      <input type="date" id="examDate" required />
+                    </label>
+
+                    <label>
+                      読解（0〜100）
+                      <input
+                        type="number"
+                        id="examReading"
+                        min="0"
+                        max="100"
+                        placeholder="60"
+                        required
+                      />
+                    </label>
+
+                    <label>
+                      作文（0〜100）
+                      <input
+                        type="number"
+                        id="examWriting"
+                        min="0"
+                        max="100"
+                        placeholder="45"
+                        required
+                      />
+                    </label>
+
+                    <label>
+                      リスニング（0〜100）
+                      <input
+                        type="number"
+                        id="examListening"
+                        min="0"
+                        max="100"
+                        placeholder="40"
+                        required
+                      />
+                    </label>
+                  </div>
+
+                  <label>
+                    メモ
+                    <textarea id="examMemo" placeholder="時間配分・感触など"></textarea>
+                  </label>
+
+                  <button type="submit" class="primary">＋ 記録する</button>
+                </form>
+              </section>
+
+              <section class="card chart-card">
+                <div class="section-head">
+                  <div>
+                    <p class="section-label">Trend</p>
+                    <h2>分野別の点数推移</h2>
+                  </div>
+                </div>
+
+                <canvas id="examSectionChart"></canvas>
+              </section>
+
+              <section class="card chart-card">
+                <div class="section-head">
+                  <div>
+                    <p class="section-label">Trend</p>
+                    <h2>合計点の推移</h2>
+                  </div>
+                </div>
+
+                <canvas id="examTotalChart"></canvas>
+              </section>
+
+              <section class="card log-card">
+                <div class="section-head">
+                  <div>
+                    <p class="section-label">History</p>
+                    <h2>過去問履歴</h2>
+                  </div>
+                </div>
+
+                <div id="examList" class="list empty">まだ記録がありません</div>
+              </section>
+            </div>
+
+            <div id="sub-reflections" class="dash-subview is-hidden-mobile">
+              <section class="card">
+                <div class="section-head">
+                  <div>
+                    <p class="section-label">Reflection</p>
+                    <h2>振り返りを記録</h2>
+                  </div>
+                </div>
+
+                <div class="segmented-control reflection-type-toggle">
+                  <button type="button" class="segment-btn active" data-reflection-type="weekly">
+                    週次
+                  </button>
+                  <button type="button" class="segment-btn" data-reflection-type="monthly">
+                    月次
+                  </button>
+                </div>
+
+                <form id="reflectionForm">
+                  <label>
+                    <span id="reflectionDateLabel">週の開始日</span>
+                    <input type="date" id="reflectionDate" required />
+                  </label>
+
+                  <label>
+                    <span id="reflectionGoodLabel">今週できたこと</span>
+                    <textarea id="reflectionGood"></textarea>
+                  </label>
+
+                  <label>
+                    <span id="reflectionWeakLabel">苦手だったこと</span>
+                    <textarea id="reflectionWeak"></textarea>
+                  </label>
+
+                  <label>
+                    <span id="reflectionNextLabel">来週の目標</span>
+                    <textarea id="reflectionNext"></textarea>
+                  </label>
+
+                  <button type="submit" class="primary">＋ 記録する</button>
+                </form>
+              </section>
+
+              <section class="card log-card">
+                <div class="section-head">
+                  <div>
+                    <p class="section-label">History</p>
+                    <h2>振り返り履歴</h2>
+                  </div>
+                </div>
+
+                <div id="reflectionList" class="list empty">まだ記録がありません</div>
+              </section>
+            </div>
+
+            <div id="sub-vocab" class="dash-subview is-hidden-mobile">
+              <section class="card">
+                <div class="section-head">
+                  <div>
+                    <p class="section-label">Vocabulary</p>
+                    <h2>単語を追加</h2>
+                  </div>
+                </div>
+
+                <form id="vocabForm">
+                  <div class="form-grid">
+                    <label>
+                      単語
+                      <input type="text" id="vocabWord" placeholder="예를 들면" required />
+                    </label>
+
+                    <label>
+                      意味
+                      <input type="text" id="vocabMeaning" placeholder="例えば" />
+                    </label>
+                  </div>
+
+                  <label class="check">
+                    <input type="checkbox" id="vocabWeak" />
+                    苦手単語としてマーク
+                  </label>
+
+                  <button type="submit" class="primary">＋ 覚えた単語を追加</button>
+                </form>
+              </section>
+
+              <section class="home-stats vocab-stats">
+                <div class="home-stat-card">
+                  <span class="home-stat-label">累計語数</span>
+                  <strong id="vocabTotalCount">0語</strong>
+                </div>
+
+                <div class="home-stat-card">
+                  <span class="home-stat-label">今日覚えた</span>
+                  <strong id="vocabTodayCount">0語</strong>
+                </div>
+
+                <div class="home-stat-card">
+                  <span class="home-stat-label">苦手単語</span>
+                  <strong id="vocabWeakCount">0語</strong>
+                </div>
+              </section>
+
+              <section class="card log-card">
+                <div class="section-head">
+                  <div>
+                    <p class="section-label">Words</p>
+                    <h2>単語一覧</h2>
+                  </div>
+                </div>
+
+                <div id="vocabList" class="list empty">まだ記録がありません</div>
+              </section>
+            </div>
+          </section>
+        </section>
+      </main>
+
+      <nav class="tab-bar">
+        <button type="button" class="tab-btn active" data-view="view-home">
+          <span class="tab-icon">🏠</span>
+          <span>ホーム</span>
+        </button>
+
+        <button type="button" class="tab-btn" data-view="view-record">
+          <span class="tab-icon">✏️</span>
+          <span>記録</span>
+        </button>
+
+        <button type="button" class="tab-btn" data-view="view-dashboard">
+          <span class="tab-icon">📊</span>
+          <span>ダッシュボード</span>
+        </button>
+      </nav>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+  </body>
 </html>

@@ -124,15 +124,11 @@ function understandingLabel(value) {
 }
 
 function getUnderstandingValue() {
-  return Number(
-    document.querySelector('input[name="understanding"]:checked')?.value || 5
-  );
+  return Number(document.querySelector('input[name="understanding"]:checked')?.value || 5);
 }
 
 function resetUnderstanding() {
-  const defaultChoice = document.querySelector(
-    'input[name="understanding"][value="5"]'
-  );
+  const defaultChoice = document.querySelector('input[name="understanding"][value="5"]');
 
   if (defaultChoice) {
     defaultChoice.checked = true;
@@ -454,15 +450,6 @@ function exitEditMode() {
 $("logFormCancelBtn").addEventListener("click", () => {
   exitEditMode();
   document.querySelector(".quick-record-card").open = false;
-});
-
-document.addEventListener("click", (event) => {
-  const button = event.target.closest("[data-edit-log]");
-
-  if (!button) return;
-
-  const log = logs.find((l) => l.id === button.dataset.editLog);
-  if (log) enterEditMode(log);
 });
 
 $("logForm").addEventListener("submit", async (event) => {
@@ -914,9 +901,7 @@ function renderExamList() {
   const items = [...withDiff].reverse();
 
   $("examList").className = `list ${items.length ? "" : "empty"}`;
-  $("examList").innerHTML = items.length
-    ? items.map(examCard).join("")
-    : "まだ記録がありません";
+  $("examList").innerHTML = items.length ? items.map(examCard).join("") : "まだ記録がありません";
 }
 
 function renderExamHome() {
@@ -953,9 +938,24 @@ function renderExamCharts() {
     data: {
       labels,
       datasets: [
-        examLineDataset("読解", "#2a78d6", 2, mockExams.map((exam) => exam.reading)),
-        examLineDataset("リスニング", "#1baf7a", 2, mockExams.map((exam) => exam.listening)),
-        examLineDataset("作文", "#eda100", 2, mockExams.map((exam) => exam.writing))
+        examLineDataset(
+          "読解",
+          "#2a78d6",
+          2,
+          mockExams.map((exam) => exam.reading)
+        ),
+        examLineDataset(
+          "リスニング",
+          "#1baf7a",
+          2,
+          mockExams.map((exam) => exam.listening)
+        ),
+        examLineDataset(
+          "作文",
+          "#eda100",
+          2,
+          mockExams.map((exam) => exam.writing)
+        )
       ]
     },
     options: baseLineOptions(100)
@@ -965,7 +965,14 @@ function renderExamCharts() {
     type: "line",
     data: {
       labels,
-      datasets: [examLineDataset("合計", "#35a64a", 3, mockExams.map((exam) => exam.total))]
+      datasets: [
+        examLineDataset(
+          "合計",
+          "#35a64a",
+          3,
+          mockExams.map((exam) => exam.total)
+        )
+      ]
     },
     options: baseLineOptions(300)
   });
@@ -1011,7 +1018,10 @@ function reflectionCard(reflection) {
 }
 
 function renderReflectionList() {
-  const items = reflections.filter((r) => r.periodType === reflectionType).slice().reverse();
+  const items = reflections
+    .filter((r) => r.periodType === reflectionType)
+    .slice()
+    .reverse();
 
   $("reflectionList").className = `list ${items.length ? "" : "empty"}`;
   $("reflectionList").innerHTML = items.length
@@ -1142,8 +1152,7 @@ function renderCalendarMonth() {
   $("calendarGrid").innerHTML = [...emptyCells, ...dayCells].join("");
 
   const now = new Date();
-  $("calendarNextBtn").disabled =
-    year === now.getFullYear() && month === now.getMonth();
+  $("calendarNextBtn").disabled = year === now.getFullYear() && month === now.getMonth();
 }
 
 $("calendarPrevBtn")?.addEventListener("click", () => {
@@ -1202,19 +1211,13 @@ function logCard(log) {
           : ""
       }
 
-      ${
-        log.memo
-          ? `<div class="log-memo">${escapeHtml(log.memo)}</div>`
-          : ""
-      }
+      ${log.memo ? `<div class="log-memo">${escapeHtml(log.memo)}</div>` : ""}
     </article>
   `;
 }
 
 function renderLogList() {
-  const reviewLogs = logs
-    .filter((log) => log.review || Number(log.understanding) <= 3)
-    .slice(0, 5);
+  const reviewLogs = logs.filter((log) => log.review || Number(log.understanding) <= 3).slice(0, 5);
 
   $("reviewList").className = `list ${reviewLogs.length ? "" : "empty"}`;
   $("reviewList").innerHTML = reviewLogs.length
@@ -1234,8 +1237,7 @@ function renderHome() {
   const streak = calcStreak();
   const hour = new Date().getHours();
 
-  const greeting =
-    hour < 11 ? "おはようございます" : hour < 18 ? "こんにちは" : "こんばんは";
+  const greeting = hour < 11 ? "おはようございます" : hour < 18 ? "こんにちは" : "こんばんは";
 
   $("homeGreeting").textContent = greeting;
   $("homeStreak").textContent = `${streak}日`;
@@ -1251,112 +1253,73 @@ function renderHome() {
         : "今日の学習を記録しましょう！";
 }
 
-/* Delete log */
+/* Delegated click actions (edit / delete / review / toggle) */
 
-document.addEventListener("click", async (event) => {
-  const button = event.target.closest("[data-delete-log]");
+const CLICK_ACTIONS = [
+  {
+    selector: "[data-edit-log]",
+    run: (button) => {
+      const log = logs.find((l) => l.id === button.dataset.editLog);
+      if (log) enterEditMode(log);
+    }
+  },
+  {
+    selector: "[data-delete-log]",
+    run: (button) => deleteLog(button.dataset.deleteLog).then(refreshLogs),
+    errorMessage: "削除に失敗しました。"
+  },
+  {
+    selector: "[data-delete-exam]",
+    run: (button) => deleteMockExam(button.dataset.deleteExam).then(refreshMockExams),
+    errorMessage: "削除に失敗しました。"
+  },
+  {
+    selector: "[data-delete-reflection]",
+    run: (button) => deleteReflection(button.dataset.deleteReflection).then(refreshReflections),
+    errorMessage: "削除に失敗しました。"
+  },
+  {
+    selector: "[data-delete-vocab]",
+    run: (button) => deleteVocabWord(button.dataset.deleteVocab).then(refreshVocabWords),
+    errorMessage: "削除に失敗しました。"
+  },
+  {
+    selector: "[data-review-vocab]",
+    run: (button) => {
+      const word = vocabWords.find((w) => w.id === button.dataset.reviewVocab);
+      if (!word) return;
 
-  if (!button) return;
+      return updateVocabWord(word.id, {
+        review_count: word.reviewCount + 1,
+        last_reviewed_at: fmt(new Date())
+      }).then(refreshVocabWords);
+    },
+    errorMessage: "更新に失敗しました。"
+  },
+  {
+    selector: "[data-toggle-weak-vocab]",
+    run: (button) => {
+      const word = vocabWords.find((w) => w.id === button.dataset.toggleWeakVocab);
+      if (!word) return;
 
-  try {
-    await deleteLog(button.dataset.deleteLog);
-    await refreshLogs();
-  } catch (err) {
-    console.error(err);
-    alert("削除に失敗しました。");
+      return updateVocabWord(word.id, { is_weak: !word.isWeak }).then(refreshVocabWords);
+    },
+    errorMessage: "更新に失敗しました。"
   }
-});
-
-/* Delete mock exam */
+];
 
 document.addEventListener("click", async (event) => {
-  const button = event.target.closest("[data-delete-exam]");
+  for (const action of CLICK_ACTIONS) {
+    const button = event.target.closest(action.selector);
+    if (!button) continue;
 
-  if (!button) return;
-
-  try {
-    await deleteMockExam(button.dataset.deleteExam);
-    await refreshMockExams();
-  } catch (err) {
-    console.error(err);
-    alert("削除に失敗しました。");
-  }
-});
-
-/* Delete reflection */
-
-document.addEventListener("click", async (event) => {
-  const button = event.target.closest("[data-delete-reflection]");
-
-  if (!button) return;
-
-  try {
-    await deleteReflection(button.dataset.deleteReflection);
-    await refreshReflections();
-  } catch (err) {
-    console.error(err);
-    alert("削除に失敗しました。");
-  }
-});
-
-/* Delete vocab word */
-
-document.addEventListener("click", async (event) => {
-  const button = event.target.closest("[data-delete-vocab]");
-
-  if (!button) return;
-
-  try {
-    await deleteVocabWord(button.dataset.deleteVocab);
-    await refreshVocabWords();
-  } catch (err) {
-    console.error(err);
-    alert("削除に失敗しました。");
-  }
-});
-
-/* Review vocab word */
-
-document.addEventListener("click", async (event) => {
-  const button = event.target.closest("[data-review-vocab]");
-
-  if (!button) return;
-
-  const id = button.dataset.reviewVocab;
-  const word = vocabWords.find((w) => w.id === id);
-
-  if (!word) return;
-
-  try {
-    await updateVocabWord(id, {
-      review_count: word.reviewCount + 1,
-      last_reviewed_at: fmt(new Date())
-    });
-    await refreshVocabWords();
-  } catch (err) {
-    console.error(err);
-    alert("更新に失敗しました。");
-  }
-});
-
-/* Toggle vocab weak flag */
-
-document.addEventListener("click", async (event) => {
-  const button = event.target.closest("[data-toggle-weak-vocab]");
-
-  if (!button) return;
-
-  const id = button.dataset.toggleWeakVocab;
-  const word = vocabWords.find((w) => w.id === id);
-
-  if (!word) return;
-
-  try {
-    await updateVocabWord(id, { is_weak: !word.isWeak });
-    await refreshVocabWords();
-  } catch (err) {
-    console.error(err);
-    alert("更新に失敗しました。");
+    try {
+      await action.run(button);
+    } catch (err) {
+      console.error(err);
+      if (action.errorMessage) alert(action.errorMessage);
+    }
+    return;
   }
 });
 
@@ -1377,20 +1340,9 @@ function render() {
     "学習時間"
   );
 
-  skillChart = renderChart(
-    "skillChart",
-    skillChart,
-    groupBy("skill", thisMonthLogs),
-    "学習時間"
-  );
+  skillChart = renderChart("skillChart", skillChart, groupBy("skill", thisMonthLogs), "学習時間");
 
-  weakTagChart = renderChart(
-    "weakTagChart",
-    weakTagChart,
-    weakTagCounts(),
-    "苦手回数",
-    "回"
-  );
+  weakTagChart = renderChart("weakTagChart", weakTagChart, weakTagCounts(), "苦手回数", "回");
 
   renderCalendarMonth();
   renderLogList();
@@ -1412,12 +1364,7 @@ document.addEventListener("study-atlas:session-changed", async (event) => {
     return;
   }
 
-  await Promise.all([
-    refreshLogs(),
-    refreshMockExams(),
-    refreshReflections(),
-    refreshVocabWords()
-  ]);
+  await Promise.all([refreshLogs(), refreshMockExams(), refreshReflections(), refreshVocabWords()]);
   materialChart?.resize();
   skillChart?.resize();
   weakTagChart?.resize();
