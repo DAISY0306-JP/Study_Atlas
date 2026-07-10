@@ -288,6 +288,7 @@ body {
   color: var(--muted);
   font-size: 12px;
   font-weight: 900;
+  white-space: nowrap;
 }
 
 .exam-card-side strong {
@@ -295,6 +296,7 @@ body {
   margin-top: 4px;
   font-size: 18px;
   letter-spacing: -0.03em;
+  white-space: nowrap;
 }
 
 /* Home tab is a "see it all without scrolling" screen — cards here
@@ -306,11 +308,27 @@ body {
 }
 
 #view-home .exam-card {
-  grid-template-columns: 1.3fr 1fr;
+  grid-template-columns: 1fr 1.15fr;
 }
 
 #view-home .exam-card-main strong {
   font-size: 26px;
+}
+
+#view-home .exam-card-side {
+  gap: 8px;
+}
+
+#view-home .exam-card-side div {
+  padding: 8px 10px;
+}
+
+#view-home .exam-card-side span {
+  font-size: 11px;
+}
+
+#view-home .exam-card-side strong {
+  font-size: 15px;
 }
 
 #view-home .vocab-summary-card {
@@ -578,7 +596,7 @@ body {
 
 .quick-actions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
   margin-bottom: 18px;
 }
