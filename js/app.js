@@ -594,6 +594,12 @@ $("vocabForm").addEventListener("submit", async (event) => {
   }
 });
 
+/* Reload (PWA standalone mode has no browser reload UI) */
+
+$("reloadBtn").addEventListener("click", () => {
+  location.reload();
+});
+
 /* Sample data */
 
 $("sampleBtn").addEventListener("click", async () => {
