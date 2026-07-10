@@ -1219,27 +1219,12 @@ form button[type="submit"]:hover {
 /* Responsive */
 
 @media (max-width: 820px) {
-  /* Short tabs (a compact home, an empty calendar week) used to sit
-     pinned to the top with a dead gap above the tab bar. Centering the
-     active tab-view in the leftover space makes short content look
-     intentional instead of unfinished; tall content (many charts) just
-     overflows past 100vh as normal, so nothing is lost either way. */
-  .app {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    padding-bottom: 116px;
-  }
-
-  .app-hero {
-    flex-shrink: 0;
-  }
-
   .app-main {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    flex: 1;
+    grid-template-columns: 1fr;
+  }
+
+  .app {
+    padding-bottom: 116px;
   }
 
   .quick-record-card {
