@@ -99,6 +99,12 @@ body {
   background: var(--soft);
   border: 1px solid var(--border);
   border-radius: 999px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.segmented-control::-webkit-scrollbar {
+  display: none;
 }
 
 /* Unlike .segmented-control (mobile-only view switcher, hidden on
@@ -124,6 +130,15 @@ body {
   background: var(--card);
   color: var(--primary-dark);
   box-shadow: var(--shadow-soft);
+}
+
+/* The view-switcher (unlike the 2-button reflection toggle) now holds
+   6 tabs — let them keep their natural width and scroll horizontally
+   instead of squeezing flex:1 down to unreadable slivers. */
+.segmented-control .segment-btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  padding: 10px 16px;
 }
 
 /* Home */
