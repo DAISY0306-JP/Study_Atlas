@@ -370,12 +370,20 @@
               <textarea id="memo" placeholder="気づき・質問・Notionに残したいこと"></textarea>
             </label>
 
-            <button type="submit" class="primary">＋ 記録する</button>
+            <button type="submit" class="primary" id="logFormSubmitBtn">＋ 記録する</button>
+            <button type="button" class="ghost form-cancel-btn" id="logFormCancelBtn" hidden>
+              編集をキャンセル
+            </button>
           </form>
         </details>
       </section>
 
       <section id="view-dashboard" class="tab-view is-hidden-mobile">
+        <div class="dashboard-heading">
+          <p class="section-label">Dashboard</p>
+          <h2>学習の記録</h2>
+        </div>
+
         <div class="segmented-control">
           <button type="button" class="segment-btn active" data-subview="sub-charts">グラフ</button>
           <button type="button" class="segment-btn" data-subview="sub-calendar">カレンダー</button>
@@ -425,12 +433,31 @@
             <section class="card">
               <div class="section-head">
                 <div>
-                  <p class="section-label">Last 7 days</p>
-                  <h2>最近7日間</h2>
+                  <p class="section-label">Calendar</p>
+                  <h2 id="calendarMonthLabel">-</h2>
+                </div>
+
+                <div class="calendar-nav">
+                  <button type="button" class="ghost small" id="calendarPrevBtn" aria-label="前の月">‹</button>
+                  <button type="button" class="ghost small" id="calendarNextBtn" aria-label="次の月">›</button>
                 </div>
               </div>
 
-              <div id="calendar" class="calendar"></div>
+              <div class="calendar-weekdays">
+                <span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span>
+              </div>
+
+              <div id="calendarGrid" class="calendar-grid"></div>
+
+              <div class="calendar-legend">
+                <span>少ない</span>
+                <span class="legend-swatch" data-level="0"></span>
+                <span class="legend-swatch" data-level="1"></span>
+                <span class="legend-swatch" data-level="2"></span>
+                <span class="legend-swatch" data-level="3"></span>
+                <span class="legend-swatch" data-level="4"></span>
+                <span>多い</span>
+              </div>
             </section>
           </div>
 

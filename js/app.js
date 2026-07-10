@@ -3,6 +3,7 @@ let mockExams = [];
 let reflections = [];
 let reflectionType = "weekly";
 let vocabWords = [];
+let editingLogId = null;
 let materialChart;
 let skillChart;
 let weakTagChart;
@@ -184,6 +185,14 @@ async function fetchLogs() {
 
 async function createLog(payload) {
   const { error } = await window.supabaseClient.from("study_logs").insert(payload);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+async function updateLog(id, payload) {
+  const { error } = await window.supabaseClient.from("study_logs").update(payload).eq("id", id);
 
   if (error) {
     throw new Error(error.message);
@@ -395,6 +404,67 @@ syncWeakTagsField();
 
 /* Form */
 
+/* Edit log */
+
+function populateLogForm(log) {
+  $("date").value = log.date;
+  $("minutes").value = log.minutes;
+  $("material").value = log.material;
+  $("skill").value = log.skill;
+  syncWeakTagsField();
+
+  const understandingInput = document.querySelector(
+    `input[name="understanding"][value="${log.understanding}"]`
+  );
+  if (understandingInput) understandingInput.checked = true;
+
+  $("review").checked = Boolean(log.review);
+  $("content").value = log.content || "";
+  $("memo").value = log.memo || "";
+
+  document.querySelectorAll('input[name="weakTag"]').forEach((checkbox) => {
+    checkbox.checked = (log.weakTags || []).includes(checkbox.value);
+  });
+}
+
+function enterEditMode(log) {
+  editingLogId = log.id;
+  populateLogForm(log);
+
+  switchTab("view-record");
+  document.querySelector(".quick-record-card").open = true;
+  $("logFormSubmitBtn").textContent = "更新する";
+  $("logFormCancelBtn").hidden = false;
+
+  document
+    .querySelector(".quick-record-card")
+    .scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function exitEditMode() {
+  editingLogId = null;
+  $("logForm").reset();
+  $("date").valueAsDate = new Date();
+  resetUnderstanding();
+  resetWeakTags();
+  $("logFormSubmitBtn").textContent = "＋ 記録する";
+  $("logFormCancelBtn").hidden = true;
+}
+
+$("logFormCancelBtn").addEventListener("click", () => {
+  exitEditMode();
+  document.querySelector(".quick-record-card").open = false;
+});
+
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-edit-log]");
+
+  if (!button) return;
+
+  const log = logs.find((l) => l.id === button.dataset.editLog);
+  if (log) enterEditMode(log);
+});
+
 $("logForm").addEventListener("submit", async (event) => {
   event.preventDefault();
 
@@ -410,19 +480,22 @@ $("logForm").addEventListener("submit", async (event) => {
     weak_tags: getWeakTags()
   };
 
-  try {
-    await createLog(payload);
+  const isEditing = Boolean(editingLogId);
 
-    event.target.reset();
-    $("date").valueAsDate = new Date();
-    resetUnderstanding();
-    resetWeakTags();
+  try {
+    if (isEditing) {
+      await updateLog(editingLogId, payload);
+    } else {
+      await createLog(payload);
+    }
+
     document.querySelector(".quick-record-card").open = false;
+    exitEditMode();
 
     await refreshLogs();
   } catch (err) {
     console.error(err);
-    alert("記録の保存に失敗しました。");
+    alert(isEditing ? "更新に失敗しました。" : "記録の保存に失敗しました。");
   }
 });
 
@@ -1017,44 +1090,65 @@ function calcStreak() {
   return streak;
 }
 
-/* Calendar */
+/* Calendar (month heatmap) */
 
-function renderCalendar() {
-  const now = new Date();
-  const days = [];
-  const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+let calendarViewDate = new Date();
 
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(now.getDate() - i);
-    days.push(d);
+function calendarLevel(total, maxDay) {
+  if (total <= 0) return 0;
+  return Math.min(4, Math.ceil((total / maxDay) * 4));
+}
+
+function renderCalendarMonth() {
+  const year = calendarViewDate.getFullYear();
+  const month = calendarViewDate.getMonth();
+  const today = fmt(new Date());
+
+  const startWeekday = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const dailyTotals = [];
+  for (let d = 1; d <= daysInMonth; d++) {
+    dailyTotals.push(sum(logs.filter((log) => log.date === fmt(new Date(year, month, d)))));
   }
-
-  const dailyTotals = days.map((day) => {
-    return sum(logs.filter((log) => log.date === fmt(day)));
-  });
 
   const maxDay = Math.max(1, ...dailyTotals);
 
-  $("calendar").innerHTML = days
-    .map((day, index) => {
-      const dateKey = fmt(day);
-      const total = dailyTotals[index];
-      const isToday = dateKey === fmt(now);
-      const percent = Math.min(100, (total / maxDay) * 100);
+  const emptyCells = Array.from(
+    { length: startWeekday },
+    () => `<div class="cal-day is-empty"></div>`
+  );
 
-      return `
-        <div class="day ${isToday ? "today" : ""}">
-          <small>${weekdays[day.getDay()]} ${day.getMonth() + 1}/${day.getDate()}</small>
-          <strong>${total}<span>分</span></strong>
-          <div class="bar">
-            <i style="width: ${percent}%"></i>
-          </div>
-        </div>
-      `;
-    })
-    .join("");
+  const dayCells = dailyTotals.map((total, index) => {
+    const d = index + 1;
+    const dateKey = fmt(new Date(year, month, d));
+    const level = calendarLevel(total, maxDay);
+    const isToday = dateKey === today ? " is-today" : "";
+
+    return `
+      <div class="cal-day${isToday}" data-level="${level}" title="${dateKey}: ${total}分">
+        ${d}
+      </div>
+    `;
+  });
+
+  $("calendarMonthLabel").textContent = `${year}年${month + 1}月`;
+  $("calendarGrid").innerHTML = [...emptyCells, ...dayCells].join("");
+
+  const now = new Date();
+  $("calendarNextBtn").disabled =
+    year === now.getFullYear() && month === now.getMonth();
 }
+
+$("calendarPrevBtn")?.addEventListener("click", () => {
+  calendarViewDate = new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth() - 1, 1);
+  renderCalendarMonth();
+});
+
+$("calendarNextBtn")?.addEventListener("click", () => {
+  calendarViewDate = new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth() + 1, 1);
+  renderCalendarMonth();
+});
 
 /* Log cards */
 
@@ -1069,9 +1163,15 @@ function logCard(log) {
           <span class="log-chip">${escapeHtml(log.minutes)}分</span>
         </div>
 
-        <button class="delete-btn" type="button" data-delete-log="${escapeHtml(log.id)}">
-          削除
-        </button>
+        <div class="log-item-buttons">
+          <button class="edit-btn" type="button" data-edit-log="${escapeHtml(log.id)}">
+            編集
+          </button>
+
+          <button class="delete-btn" type="button" data-delete-log="${escapeHtml(log.id)}">
+            削除
+          </button>
+        </div>
       </div>
 
       <div class="log-main">
@@ -1286,7 +1386,7 @@ function render() {
     "回"
   );
 
-  renderCalendar();
+  renderCalendarMonth();
   renderLogList();
   renderHome();
 }
@@ -1302,6 +1402,7 @@ document.addEventListener("study-atlas:session-changed", async (event) => {
     renderExamHome();
     renderReflectionList();
     renderVocab();
+    renderCalendarMonth();
     return;
   }
 
@@ -1319,3 +1420,4 @@ document.addEventListener("study-atlas:session-changed", async (event) => {
 });
 
 renderExamHome();
+renderCalendarMonth();

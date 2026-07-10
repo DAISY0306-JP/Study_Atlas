@@ -12,6 +12,13 @@
   --primary-dark: #35a64a;
   --primary-light: #dff7e5;
 
+  /* Sequential ramp (light -> dark) for the study-time heatmap, one hue
+     stepped from --primary-light through past --primary-dark. */
+  --heat-1: #dff7e5;
+  --heat-2: #a9e6b8;
+  --heat-3: #58cc6c;
+  --heat-4: #2f8f45;
+
   --border: #d5efd9;
   --text: #243424;
   --muted: #6b7c6b;
@@ -30,6 +37,9 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  /* Kills double-tap-to-zoom on quick taps (record buttons, quick
+     tiles) without disabling pinch-zoom, which accessibility needs. */
+  touch-action: manipulation;
 }
 
 body {
@@ -422,6 +432,10 @@ body {
   text-transform: uppercase;
 }
 
+.dashboard-heading {
+  margin-bottom: 18px;
+}
+
 .hero-copy {
   margin: 12px 0 0;
   color: var(--muted);
@@ -592,6 +606,18 @@ body {
 
 .ghost:hover {
   transform: translateY(-1px);
+}
+
+.ghost:disabled {
+  opacity: 0.4;
+  cursor: default;
+  transform: none;
+}
+
+.form-cancel-btn {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 10px;
 }
 
 .quick-actions-grid {
@@ -889,86 +915,116 @@ form button[type="submit"]:hover {
   max-height: 260px;
 }
 
-/* Calendar */
+/* Calendar (month heatmap) */
 
-.calendar {
+.calendar-nav {
   display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  padding: 2px 2px 6px;
-  scrollbar-width: none;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
-.calendar::-webkit-scrollbar {
-  display: none;
-}
-
-.day {
-  flex: 0 0 78px;
-  min-height: 92px;
-  border-radius: 22px;
-  background: #f4fbf6;
-  border: 1px solid var(--border);
-  padding: 12px 10px;
+.calendar-weekdays {
   display: grid;
-  align-content: space-between;
-  gap: 8px;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 8px;
 }
 
-.day.today {
-  background: var(--primary);
-  color: #fff;
-  border-color: var(--primary);
-  box-shadow: 0 12px 24px rgba(88, 204, 108, 0.28);
-}
-
-.day small {
-  display: block;
+.calendar-weekdays span {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 900;
   color: var(--muted);
-  font-size: 12px;
-  font-weight: 900;
-  line-height: 1.2;
 }
 
-.day.today small {
-  color: rgba(255, 255, 255, 0.86);
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
 }
 
-.day strong {
-  display: block;
-  font-size: 21px;
-  line-height: 1;
-  letter-spacing: -0.04em;
-  white-space: nowrap;
+.cal-day {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--soft);
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 4px 5px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
 }
 
-.day strong span {
-  margin-left: 1px;
-  font-size: 12px;
-  font-weight: 900;
+.cal-day.is-empty {
+  visibility: hidden;
 }
 
-.day .bar {
-  width: 100%;
-  height: 7px;
-  border-radius: 999px;
-  background: rgba(88, 204, 108, 0.16);
-  overflow: hidden;
+.cal-day.is-today {
+  box-shadow: inset 0 0 0 2px var(--primary-dark);
 }
 
-.day.today .bar {
-  background: rgba(255, 255, 255, 0.3);
+.cal-day[data-level="1"] {
+  background: var(--heat-1);
+  border-color: var(--heat-1);
+  color: var(--text);
 }
 
-.day .bar i {
-  display: block;
-  height: 100%;
-  border-radius: 999px;
-  background: var(--primary);
+.cal-day[data-level="2"] {
+  background: var(--heat-2);
+  border-color: var(--heat-2);
+  color: var(--text);
 }
 
-.day.today .bar i {
-  background: #fff;
+.cal-day[data-level="3"] {
+  background: var(--heat-3);
+  border-color: var(--heat-3);
+  color: #fff;
+}
+
+.cal-day[data-level="4"] {
+  background: var(--heat-4);
+  border-color: var(--heat-4);
+  color: #fff;
+}
+
+.calendar-legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 12px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.legend-swatch {
+  width: 13px;
+  height: 13px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--soft);
+}
+
+.legend-swatch[data-level="1"] {
+  background: var(--heat-1);
+  border-color: var(--heat-1);
+}
+
+.legend-swatch[data-level="2"] {
+  background: var(--heat-2);
+  border-color: var(--heat-2);
+}
+
+.legend-swatch[data-level="3"] {
+  background: var(--heat-3);
+  border-color: var(--heat-3);
+}
+
+.legend-swatch[data-level="4"] {
+  background: var(--heat-4);
+  border-color: var(--heat-4);
 }
 
 /* Review / History lists */
@@ -1007,6 +1063,28 @@ form button[type="submit"]:hover {
   justify-content: space-between;
   align-items: flex-start;
   gap: 10px;
+}
+
+.log-item-buttons {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.edit-btn {
+  border: none;
+  background: #eef7f0;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 6px 9px;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.edit-btn:hover {
+  background: var(--primary-light);
+  color: var(--primary-dark);
 }
 
 .log-date {
@@ -1141,16 +1219,31 @@ form button[type="submit"]:hover {
 /* Responsive */
 
 @media (max-width: 820px) {
+  /* Short tabs (a compact home, an empty calendar week) used to sit
+     pinned to the top with a dead gap above the tab bar. Centering the
+     active tab-view in the leftover space makes short content look
+     intentional instead of unfinished; tall content (many charts) just
+     overflows past 100vh as normal, so nothing is lost either way. */
+  .app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding-bottom: 116px;
+  }
+
+  .app-hero {
+    flex-shrink: 0;
+  }
+
   .app-main {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
   }
 
   .quick-record-card {
     position: static;
-  }
-
-  .app {
-    padding-bottom: 116px;
   }
 
   .tab-bar {
