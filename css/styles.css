@@ -1,34 +1,34 @@
 /* =========================
    Korean Study Log
-   App-like green theme
+   App-like indigo theme
 ========================= */
 
 :root {
-  --bg: #f4fbf6;
+  --bg: #f5f5fc;
   --card: #ffffff;
-  --soft: #f8fff9;
+  --soft: #f8f8fd;
 
-  --primary: #58cc6c;
-  --primary-dark: #35a64a;
-  --primary-light: #dff7e5;
+  --primary: #6e76d9;
+  --primary-dark: #4a4ab2;
+  --primary-light: #e7e8fb;
 
   /* Sequential ramp (light -> dark) for the study-time heatmap, one hue
      stepped from --primary-light through past --primary-dark. */
-  --heat-1: #dff7e5;
-  --heat-2: #a9e6b8;
-  --heat-3: #58cc6c;
-  --heat-4: #2f8f45;
+  --heat-1: #e7e8fb;
+  --heat-2: #b7bbef;
+  --heat-3: #6e76d9;
+  --heat-4: #3a3a8c;
 
-  --border: #d5efd9;
-  --text: #243424;
-  --muted: #6b7c6b;
-  --muted-light: #8fa08f;
+  --border: #dbdcf2;
+  --text: #26263d;
+  --muted: #6b6b85;
+  --muted-light: #9797ad;
 
   --danger: #e85c5c;
   --danger-bg: #fff0f0;
 
-  --shadow: 0 16px 40px rgba(88, 204, 108, 0.14);
-  --shadow-soft: 0 8px 24px rgba(36, 52, 36, 0.06);
+  --shadow: 0 16px 40px rgba(110, 118, 217, 0.14);
+  --shadow-soft: 0 8px 24px rgba(38, 38, 61, 0.06);
 }
 
 * {
@@ -47,7 +47,7 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   background:
-    radial-gradient(circle at top right, rgba(88, 204, 108, 0.18), transparent 34%), var(--bg);
+    radial-gradient(circle at top right, rgba(110, 118, 217, 0.18), transparent 34%), var(--bg);
   color: var(--text);
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN",
@@ -347,7 +347,7 @@ body {
   padding: 14px;
   border: 1px solid var(--border);
   border-radius: 20px;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fff9 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #f8f8fd 100%);
 }
 
 .exam-item-header {
@@ -368,7 +368,7 @@ body {
   flex-direction: column;
   align-items: center;
   border-radius: 16px;
-  background: #f4fbf6;
+  background: #f5f5fc;
   border: 1px solid var(--border);
   padding: 6px 12px;
   min-width: 56px;
@@ -387,7 +387,7 @@ body {
 
 .exam-score-pill.total {
   background: var(--primary-light);
-  border-color: rgba(88, 204, 108, 0.5);
+  border-color: rgba(110, 118, 217, 0.5);
 }
 
 .exam-diff {
@@ -626,7 +626,7 @@ body {
   border: 1px solid var(--border);
   border-radius: 22px;
   background: var(--primary-light);
-  box-shadow: 0 10px 24px rgba(88, 204, 108, 0.12);
+  box-shadow: 0 10px 24px rgba(110, 118, 217, 0.12);
   padding: 16px 14px;
   cursor: pointer;
   transition: 0.18s ease;
@@ -793,7 +793,7 @@ select:focus,
 textarea:focus {
   border-color: var(--primary);
   background: #fff;
-  box-shadow: 0 0 0 4px rgba(88, 204, 108, 0.16);
+  box-shadow: 0 0 0 4px rgba(110, 118, 217, 0.16);
 }
 
 .check {
@@ -822,7 +822,7 @@ form button[type="submit"] {
   color: #fff;
   font-weight: 900;
   font-size: 16px;
-  box-shadow: 0 14px 28px rgba(88, 204, 108, 0.28);
+  box-shadow: 0 14px 28px rgba(110, 118, 217, 0.28);
   cursor: pointer;
   transition: 0.18s ease;
 }
@@ -899,7 +899,7 @@ form button[type="submit"]:hover {
   background: var(--primary);
   border-color: var(--primary);
   color: #fff;
-  box-shadow: 0 10px 22px rgba(88, 204, 108, 0.24);
+  box-shadow: 0 10px 22px rgba(110, 118, 217, 0.24);
 }
 
 .choice-pill:hover span {
@@ -1048,11 +1048,11 @@ form button[type="submit"]:hover {
   padding: 14px;
   border: 1px solid var(--border);
   border-radius: 20px;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fff9 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #f8f8fd 100%);
 }
 
 .log-item.needs-review {
-  border-color: rgba(88, 204, 108, 0.5);
+  border-color: rgba(110, 118, 217, 0.5);
 }
 
 .log-item-header {
@@ -1070,7 +1070,7 @@ form button[type="submit"]:hover {
 
 .edit-btn {
   border: none;
-  background: #eef7f0;
+  background: #eeeef8;
   color: var(--muted);
   border-radius: 999px;
   padding: 6px 9px;
@@ -1105,7 +1105,7 @@ form button[type="submit"]:hover {
 
 .delete-btn {
   border: none;
-  background: #eef7f0;
+  background: #eeeef8;
   color: var(--muted);
   border-radius: 999px;
   padding: 6px 9px;
@@ -1136,7 +1136,7 @@ form button[type="submit"]:hover {
   display: inline-flex;
   align-items: center;
   border-radius: 999px;
-  background: #f4fbf6;
+  background: #f5f5fc;
   border: 1px solid var(--border);
   color: var(--muted);
   padding: 5px 9px;
@@ -1145,10 +1145,10 @@ form button[type="submit"]:hover {
 }
 
 .log-content {
-  color: #334433;
+  color: #33334d;
   font-size: 14px;
   line-height: 1.55;
-  background: rgba(223, 247, 229, 0.48);
+  background: rgba(231, 232, 251, 0.48);
   border-radius: 14px;
   padding: 10px 12px;
 }

@@ -738,8 +738,8 @@ function renderChart(canvasId, oldChart, grouped, label, unit = "分") {
           data: hasData ? data : [0],
           borderWidth: 0,
           borderRadius: 14,
-          backgroundColor: "#58CC6C",
-          hoverBackgroundColor: "#35A64A"
+          backgroundColor: "#6E76D9",
+          hoverBackgroundColor: "#4A4AB2"
         }
       ]
     },
@@ -762,7 +762,7 @@ function renderChart(canvasId, oldChart, grouped, label, unit = "分") {
             display: false
           },
           ticks: {
-            color: "#6B7C6B",
+            color: "#6B6B85",
             font: {
               weight: "700"
             }
@@ -774,7 +774,7 @@ function renderChart(canvasId, oldChart, grouped, label, unit = "分") {
             color: "rgba(213, 239, 217, 0.8)"
           },
           ticks: {
-            color: "#6B7C6B",
+            color: "#6B6B85",
             callback: (value) => `${value}${unit}`
           }
         }
@@ -811,7 +811,7 @@ function baseLineOptions(maxScore) {
       legend: {
         position: "bottom",
         labels: {
-          color: "#6B7C6B",
+          color: "#6B6B85",
           font: { weight: "700" },
           boxWidth: 10,
           boxHeight: 10
@@ -826,14 +826,14 @@ function baseLineOptions(maxScore) {
     scales: {
       x: {
         grid: { display: false },
-        ticks: { color: "#6B7C6B", font: { weight: "700" } }
+        ticks: { color: "#6B6B85", font: { weight: "700" } }
       },
       y: {
         beginAtZero: true,
         max: maxScore,
         grid: { color: "rgba(213, 239, 217, 0.8)" },
         ticks: {
-          color: "#6B7C6B",
+          color: "#6B6B85",
           callback: (value) => `${value}点`
         }
       }
@@ -968,7 +968,7 @@ function renderExamCharts() {
       datasets: [
         examLineDataset(
           "合計",
-          "#35a64a",
+          "#4a4ab2",
           3,
           mockExams.map((exam) => exam.total)
         )
