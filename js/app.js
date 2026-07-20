@@ -3,6 +3,8 @@ let mockExams = [];
 let reflections = [];
 let reflectionType = "weekly";
 let vocabWords = [];
+let vocabSearchQuery = "";
+let vocabListLimit = 50;
 let vocabQuizSessions = [];
 let quizSettings = loadQuizSettings();
 let quizState = null;
@@ -643,6 +645,17 @@ $("vocabForm").addEventListener("submit", async (event) => {
   }
 });
 
+$("vocabSearch")?.addEventListener("input", () => {
+  vocabSearchQuery = $("vocabSearch").value;
+  vocabListLimit = 50;
+  renderVocabList();
+});
+
+$("vocabListMoreBtn")?.addEventListener("click", () => {
+  vocabListLimit += 50;
+  renderVocabList();
+});
+
 /* Reload (PWA standalone mode has no browser reload UI) */
 
 $("reloadBtn").addEventListener("click", () => {
@@ -745,40 +758,54 @@ function switchTab(target) {
 }
 
 tabButtons.forEach((button) => {
-  button.addEventListener("click", () => switchTab(button.dataset.view));
+  button.addEventListener("click", () => {
+    switchTab(button.dataset.view);
+    if (button.dataset.view === "view-quiz") switchQuizScreen("home");
+  });
 });
 
 $("homeRecordBtn")?.addEventListener("click", () => switchTab("view-record"));
 
 $("homeVocabBtn")?.addEventListener("click", () => {
   switchTab("view-quiz");
-  switchQuizScreen("manage");
+  document.querySelector('#view-quiz .segment-btn[data-subview="sub-vocab-list"]')?.click();
 });
 
-/* Dashboard sub-tabs (mobile) */
+/* Sub-tabs (mobile) — each tab's segmented control is wired independently
+   so clicking a segment in one tab never toggles subviews in another tab */
 
-const segmentButtons = document.querySelectorAll(".segment-btn");
-const dashSubviews = document.querySelectorAll(".dash-subview");
+function wireSegmentedControl(container, onSwitch) {
+  if (!container) return;
 
-segmentButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    const target = button.dataset.subview;
+  const buttons = container.querySelectorAll(".segment-btn");
+  const subviews = container.querySelectorAll(".dash-subview");
 
-    segmentButtons.forEach((btn) => btn.classList.toggle("active", btn === button));
-    dashSubviews.forEach((view) => view.classList.toggle("is-hidden-mobile", view.id !== target));
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const target = button.dataset.subview;
 
-    if (target === "sub-charts") {
-      materialChart?.resize();
-      skillChart?.resize();
-      weakTagChart?.resize();
-    }
+      buttons.forEach((btn) => btn.classList.toggle("active", btn === button));
+      subviews.forEach((view) => view.classList.toggle("is-hidden-mobile", view.id !== target));
 
-    if (target === "sub-exams") {
-      examChart?.resize();
-      examTotalChart?.resize();
-    }
+      onSwitch?.(target);
+    });
   });
+}
+
+wireSegmentedControl($("view-dashboard"), (target) => {
+  if (target === "sub-charts") {
+    materialChart?.resize();
+    skillChart?.resize();
+    weakTagChart?.resize();
+  }
+
+  if (target === "sub-exams") {
+    examChart?.resize();
+    examTotalChart?.resize();
+  }
 });
+
+wireSegmentedControl($("view-quiz"));
 
 /* Charts */
 
@@ -1127,11 +1154,32 @@ function vocabCard(word) {
   `;
 }
 
+function filteredVocabWords() {
+  const query = vocabSearchQuery.trim().toLowerCase();
+  if (!query) return vocabWords;
+
+  return vocabWords.filter(
+    (word) =>
+      word.word.toLowerCase().includes(query) || (word.meaning || "").toLowerCase().includes(query)
+  );
+}
+
 function renderVocabList() {
-  $("vocabList").className = `list ${vocabWords.length ? "" : "empty"}`;
-  $("vocabList").innerHTML = vocabWords.length
-    ? vocabWords.map(vocabCard).join("")
-    : "まだ記録がありません";
+  const filtered = filteredVocabWords();
+  const visible = filtered.slice(0, vocabListLimit);
+
+  $("vocabList").className = `list ${visible.length ? "" : "empty"}`;
+  $("vocabList").innerHTML = visible.length
+    ? visible.map(vocabCard).join("")
+    : vocabSearchQuery
+      ? "該当する単語がありません"
+      : "まだ記録がありません";
+
+  $("vocabListCount").textContent = filtered.length
+    ? `${filtered.length}件中${visible.length}件を表示`
+    : "";
+
+  $("vocabListMoreBtn").hidden = filtered.length <= visible.length;
 }
 
 function renderVocabStats() {
@@ -1465,10 +1513,6 @@ $("quizRetryBtn")?.addEventListener("click", () => {
 });
 
 $("quizBackHomeBtn")?.addEventListener("click", () => switchQuizScreen("home"));
-
-$("quizManageBtn")?.addEventListener("click", () => switchQuizScreen("manage"));
-
-$("quizManageBackBtn")?.addEventListener("click", () => switchQuizScreen("home"));
 
 /* Streak */
 

@@ -1206,7 +1206,7 @@ form button[type="submit"]:hover {
   font-size: 11px;
   font-weight: 800;
   padding: 6px 4px 4px;
-  border-radius: 16px;
+  border-radius: 22px;
   cursor: pointer;
   transition: 0.18s ease;
 }
@@ -1234,15 +1234,15 @@ form button[type="submit"]:hover {
   .tab-bar {
     display: flex;
     position: fixed;
-    left: 12px;
-    right: 12px;
+    left: 6px;
+    right: 6px;
     bottom: max(12px, env(safe-area-inset-bottom));
     gap: 4px;
     padding: 8px;
     background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(14px);
     border: 1px solid var(--border);
-    border-radius: 24px;
+    border-radius: 32px;
     box-shadow: var(--shadow);
     z-index: 10;
   }
@@ -1509,4 +1509,20 @@ form button[type="submit"]:hover {
 .quiz-result-card h2 {
   font-size: 28px;
   margin: 8px 0;
+}
+
+.vocab-search {
+  margin: 14px 0 8px;
+}
+
+.vocab-list-count {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.vocab-list-more {
+  width: 100%;
+  margin-top: 12px;
 }

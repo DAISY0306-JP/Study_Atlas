@@ -684,169 +684,179 @@
         </section>
 
         <section id="view-quiz" class="tab-view is-hidden-mobile">
-          <div id="quiz-home" data-quiz-screen="home">
-            <section class="card quiz-hero">
-              <p class="quiz-hero-title" id="quizHeroTitle">今日も10問、始めましょう。</p>
-              <p class="quiz-hero-sub" id="quizHeroSub">韓国語・日本語 → 外国語</p>
+          <div class="segmented-control">
+            <button type="button" class="segment-btn active" data-subview="sub-quiz">
+              クイズ
+            </button>
+            <button type="button" class="segment-btn" data-subview="sub-vocab-add">
+              単語追加
+            </button>
+            <button type="button" class="segment-btn" data-subview="sub-vocab-list">
+              単語一覧
+            </button>
+          </div>
 
-              <div class="quiz-hero-actions">
-                <button type="button" class="primary" id="quizStartBtn">すぐ始める</button>
-                <button type="button" class="ghost" id="quizSettingsBtn">条件を選ぶ</button>
-              </div>
-            </section>
+          <div id="sub-quiz" class="dash-subview">
+            <div id="quiz-home" data-quiz-screen="home">
+              <section class="card quiz-hero">
+                <p class="quiz-hero-title" id="quizHeroTitle">今日も10問、始めましょう。</p>
+                <p class="quiz-hero-sub" id="quizHeroSub">韓国語・日本語 → 外国語</p>
 
-            <section class="home-stats two-col">
-              <div class="home-stat-card">
-                <span class="home-stat-label">学習セット</span>
-                <strong id="quizSessionCount">0</strong>
-              </div>
+                <div class="quiz-hero-actions">
+                  <button type="button" class="primary" id="quizStartBtn">すぐ始める</button>
+                  <button type="button" class="ghost" id="quizSettingsBtn">条件を選ぶ</button>
+                </div>
+              </section>
 
-              <div class="home-stat-card">
-                <span class="home-stat-label">回答数</span>
-                <strong id="quizAnswerCount">0</strong>
-              </div>
+              <section class="home-stats two-col">
+                <div class="home-stat-card">
+                  <span class="home-stat-label">学習セット</span>
+                  <strong id="quizSessionCount">0</strong>
+                </div>
 
-              <div class="home-stat-card">
-                <span class="home-stat-label">正答率</span>
-                <strong id="quizAccuracy">0%</strong>
-              </div>
+                <div class="home-stat-card">
+                  <span class="home-stat-label">回答数</span>
+                  <strong id="quizAnswerCount">0</strong>
+                </div>
 
-              <div class="home-stat-card">
-                <span class="home-stat-label">要復習</span>
-                <strong id="quizReviewCount">0</strong>
-              </div>
-            </section>
+                <div class="home-stat-card">
+                  <span class="home-stat-label">正答率</span>
+                  <strong id="quizAccuracy">0%</strong>
+                </div>
 
-            <section class="card">
+                <div class="home-stat-card">
+                  <span class="home-stat-label">要復習</span>
+                  <strong id="quizReviewCount">0</strong>
+                </div>
+              </section>
+
+              <section class="card">
+                <div class="section-head">
+                  <div>
+                    <p class="section-label">Recommend</p>
+                    <h2>おすすめ</h2>
+                  </div>
+                </div>
+
+                <button type="button" class="ghost quiz-recommend-btn" id="quizWeakStartBtn">
+                  間違えた単語を10問復習する
+                </button>
+              </section>
+            </div>
+
+            <div id="quiz-settings" class="card" data-quiz-screen="settings" hidden>
               <div class="section-head">
                 <div>
-                  <p class="section-label">Recommend</p>
-                  <h2>おすすめ</h2>
+                  <p class="section-label">Setting</p>
+                  <h2>学習内容を選びます</h2>
                 </div>
               </div>
 
-              <button type="button" class="ghost quiz-recommend-btn" id="quizWeakStartBtn">
-                間違えた単語を10問復習する
+              <fieldset class="choice-group">
+                <legend>学習する言語</legend>
+
+                <div class="choice-list">
+                  <label class="choice-pill">
+                    <input type="radio" name="quizLanguage" value="ko" checked />
+                    <span>🇰🇷 韓国語</span>
+                  </label>
+
+                  <label class="choice-pill">
+                    <input type="radio" name="quizLanguage" value="en" />
+                    <span>🇬🇧 英語</span>
+                  </label>
+                </div>
+              </fieldset>
+
+              <fieldset class="choice-group">
+                <legend>出題方向</legend>
+
+                <div class="choice-list">
+                  <label class="choice-pill">
+                    <input type="radio" name="quizDirection" value="jp-to-foreign" checked />
+                    <span>日本語 → 外国語</span>
+                  </label>
+
+                  <label class="choice-pill">
+                    <input type="radio" name="quizDirection" value="foreign-to-jp" />
+                    <span>外国語 → 日本語</span>
+                  </label>
+
+                  <label class="choice-pill">
+                    <input type="radio" name="quizDirection" value="random" />
+                    <span>1問ごとにランダム</span>
+                  </label>
+                </div>
+              </fieldset>
+
+              <button type="button" class="primary" id="quizSettingsStartBtn">
+                この条件で始める
               </button>
-            </section>
+              <button type="button" class="ghost" id="quizSettingsBackBtn">戻る</button>
+            </div>
 
-            <button type="button" class="ghost quiz-recommend-btn" id="quizManageBtn">
-              単語を管理する
-            </button>
-          </div>
+            <div id="quiz-play" class="card quiz-play-card" data-quiz-screen="play" hidden>
+              <div class="quiz-progress-head">
+                <span id="quizProgressLabel">問題 1 / 10</span>
+                <span id="quizCorrectLabel">正解 0</span>
+              </div>
 
-          <div id="quiz-settings" class="card" data-quiz-screen="settings" hidden>
-            <div class="section-head">
-              <div>
-                <p class="section-label">Setting</p>
-                <h2>学習内容を選びます</h2>
+              <div class="quiz-progress-bar">
+                <div class="quiz-progress-fill" id="quizProgressFill"></div>
+              </div>
+
+              <div class="quiz-question-card">
+                <p class="quiz-question-direction" id="quizQuestionDirection">日本語 → 外国語</p>
+                <p class="quiz-question-text" id="quizQuestionText"></p>
+              </div>
+
+              <div class="quiz-choices" id="quizChoices"></div>
+
+              <div class="card quiz-explanation" id="quizExplanation" hidden>
+                <p class="quiz-explanation-result" id="quizExplanationResult">惜しいです</p>
+                <p class="quiz-explanation-pair" id="quizExplanationPair"></p>
+                <p class="quiz-explanation-reading" id="quizExplanationReading" hidden></p>
+
+                <div class="quiz-explanation-example" id="quizExplanationExample" hidden></div>
+
+                <a
+                  class="ghost"
+                  id="quizGoogleSearchLink"
+                  href="#"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  この単語をGoogleで検索
+                </a>
+
+                <a
+                  class="ghost"
+                  id="quizGoogleTranslateLink"
+                  href="#"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  hidden
+                >
+                  例文をGoogle翻訳で確認
+                </a>
+
+                <button type="button" class="primary" id="quizNextBtn">次の問題</button>
               </div>
             </div>
 
-            <fieldset class="choice-group">
-              <legend>学習する言語</legend>
+            <div id="quiz-result" class="card quiz-result-card" data-quiz-screen="result" hidden>
+              <p class="section-label">Result</p>
+              <h2 id="quizResultScore">0 / 10 正解</h2>
+              <p id="quizResultMessage"></p>
 
-              <div class="choice-list">
-                <label class="choice-pill">
-                  <input type="radio" name="quizLanguage" value="ko" checked />
-                  <span>🇰🇷 韓国語</span>
-                </label>
-
-                <label class="choice-pill">
-                  <input type="radio" name="quizLanguage" value="en" />
-                  <span>🇬🇧 英語</span>
-                </label>
+              <div class="quiz-hero-actions">
+                <button type="button" class="primary" id="quizRetryBtn">もう一度</button>
+                <button type="button" class="ghost" id="quizBackHomeBtn">ホームに戻る</button>
               </div>
-            </fieldset>
-
-            <fieldset class="choice-group">
-              <legend>出題方向</legend>
-
-              <div class="choice-list">
-                <label class="choice-pill">
-                  <input type="radio" name="quizDirection" value="jp-to-foreign" checked />
-                  <span>日本語 → 外国語</span>
-                </label>
-
-                <label class="choice-pill">
-                  <input type="radio" name="quizDirection" value="foreign-to-jp" />
-                  <span>外国語 → 日本語</span>
-                </label>
-
-                <label class="choice-pill">
-                  <input type="radio" name="quizDirection" value="random" />
-                  <span>1問ごとにランダム</span>
-                </label>
-              </div>
-            </fieldset>
-
-            <button type="button" class="primary" id="quizSettingsStartBtn">
-              この条件で始める
-            </button>
-            <button type="button" class="ghost" id="quizSettingsBackBtn">戻る</button>
-          </div>
-
-          <div id="quiz-play" class="card quiz-play-card" data-quiz-screen="play" hidden>
-            <div class="quiz-progress-head">
-              <span id="quizProgressLabel">問題 1 / 10</span>
-              <span id="quizCorrectLabel">正解 0</span>
-            </div>
-
-            <div class="quiz-progress-bar">
-              <div class="quiz-progress-fill" id="quizProgressFill"></div>
-            </div>
-
-            <div class="quiz-question-card">
-              <p class="quiz-question-direction" id="quizQuestionDirection">日本語 → 外国語</p>
-              <p class="quiz-question-text" id="quizQuestionText"></p>
-            </div>
-
-            <div class="quiz-choices" id="quizChoices"></div>
-
-            <div class="card quiz-explanation" id="quizExplanation" hidden>
-              <p class="quiz-explanation-result" id="quizExplanationResult">惜しいです</p>
-              <p class="quiz-explanation-pair" id="quizExplanationPair"></p>
-              <p class="quiz-explanation-reading" id="quizExplanationReading" hidden></p>
-
-              <div class="quiz-explanation-example" id="quizExplanationExample" hidden></div>
-
-              <a
-                class="ghost"
-                id="quizGoogleSearchLink"
-                href="#"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                この単語をGoogleで検索
-              </a>
-
-              <a
-                class="ghost"
-                id="quizGoogleTranslateLink"
-                href="#"
-                target="_blank"
-                rel="noopener noreferrer"
-                hidden
-              >
-                例文をGoogle翻訳で確認
-              </a>
-
-              <button type="button" class="primary" id="quizNextBtn">次の問題</button>
             </div>
           </div>
 
-          <div id="quiz-result" class="card quiz-result-card" data-quiz-screen="result" hidden>
-            <p class="section-label">Result</p>
-            <h2 id="quizResultScore">0 / 10 正解</h2>
-            <p id="quizResultMessage"></p>
-
-            <div class="quiz-hero-actions">
-              <button type="button" class="primary" id="quizRetryBtn">もう一度</button>
-              <button type="button" class="ghost" id="quizBackHomeBtn">ホームに戻る</button>
-            </div>
-          </div>
-
-          <div data-quiz-screen="manage" hidden>
+          <div id="sub-vocab-add" class="dash-subview is-hidden-mobile">
             <section class="card">
               <div class="section-head">
                 <div>
@@ -913,7 +923,9 @@
                 <button type="submit" class="primary">＋ 覚えた単語を追加</button>
               </form>
             </section>
+          </div>
 
+          <div id="sub-vocab-list" class="dash-subview is-hidden-mobile">
             <section class="home-stats vocab-stats">
               <div class="home-stat-card">
                 <span class="home-stat-label">累計語数</span>
@@ -939,10 +951,21 @@
                 </div>
               </div>
 
-              <div id="vocabList" class="list empty">まだ記録がありません</div>
-            </section>
+              <input
+                type="search"
+                id="vocabSearch"
+                class="vocab-search"
+                placeholder="単語・意味で検索"
+              />
 
-            <button type="button" class="ghost" id="quizManageBackBtn">戻る</button>
+              <p class="vocab-list-count" id="vocabListCount"></p>
+
+              <div id="vocabList" class="list empty">まだ記録がありません</div>
+
+              <button type="button" class="ghost vocab-list-more" id="vocabListMoreBtn" hidden>
+                もっと見る
+              </button>
+            </section>
           </div>
         </section>
       </main>
@@ -961,7 +984,7 @@
         </button>
 
         <button type="button" class="tab-btn" data-view="view-quiz">
-          <span>クイズ</span>
+          <span>単語</span>
         </button>
       </nav>
     </div>
