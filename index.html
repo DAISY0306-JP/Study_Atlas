@@ -415,7 +415,6 @@
             <button type="button" class="segment-btn" data-subview="sub-reflections">
               振り返り
             </button>
-            <button type="button" class="segment-btn" data-subview="sub-vocab">単語帳</button>
           </div>
 
           <section class="insight-grid">
@@ -681,106 +680,10 @@
               </section>
             </div>
 
-            <div id="sub-vocab" class="dash-subview is-hidden-mobile">
-              <section class="card">
-                <div class="section-head">
-                  <div>
-                    <p class="section-label">Vocabulary</p>
-                    <h2>単語を追加</h2>
-                  </div>
-                </div>
-
-                <form id="vocabForm">
-                  <fieldset class="choice-group">
-                    <legend>言語</legend>
-
-                    <div class="choice-list">
-                      <label class="choice-pill">
-                        <input type="radio" name="vocabLanguage" value="ko" checked />
-                        <span>🇰🇷 韓国語</span>
-                      </label>
-
-                      <label class="choice-pill">
-                        <input type="radio" name="vocabLanguage" value="en" />
-                        <span>🇬🇧 英語</span>
-                      </label>
-                    </div>
-                  </fieldset>
-
-                  <div class="form-grid">
-                    <label>
-                      単語
-                      <input type="text" id="vocabWord" placeholder="예를 들면" required />
-                    </label>
-
-                    <label>
-                      意味
-                      <input type="text" id="vocabMeaning" placeholder="例えば" />
-                    </label>
-                  </div>
-
-                  <div class="form-grid">
-                    <label>
-                      読み方（任意）
-                      <input type="text" id="vocabReading" placeholder="ye-reul-deul-myeon" />
-                    </label>
-
-                    <label>
-                      例文（任意）
-                      <input
-                        type="text"
-                        id="vocabExample"
-                        placeholder="예를 들면 저는 사과를 좋아해요。"
-                      />
-                    </label>
-                  </div>
-
-                  <label class="check">
-                    <input type="checkbox" id="vocabWeak" />
-                    苦手単語としてマーク
-                  </label>
-
-                  <button type="submit" class="primary">＋ 覚えた単語を追加</button>
-                </form>
-              </section>
-
-              <section class="home-stats vocab-stats">
-                <div class="home-stat-card">
-                  <span class="home-stat-label">累計語数</span>
-                  <strong id="vocabTotalCount">0語</strong>
-                </div>
-
-                <div class="home-stat-card">
-                  <span class="home-stat-label">今日覚えた</span>
-                  <strong id="vocabTodayCount">0語</strong>
-                </div>
-
-                <div class="home-stat-card">
-                  <span class="home-stat-label">苦手単語</span>
-                  <strong id="vocabWeakCount">0語</strong>
-                </div>
-              </section>
-
-              <section class="card log-card">
-                <div class="section-head">
-                  <div>
-                    <p class="section-label">Words</p>
-                    <h2>単語一覧</h2>
-                  </div>
-                </div>
-
-                <div id="vocabList" class="list empty">まだ記録がありません</div>
-              </section>
-            </div>
           </section>
         </section>
 
         <section id="view-quiz" class="tab-view is-hidden-mobile">
-          <div class="dashboard-heading">
-            <p class="section-label">Quiz</p>
-            <h2>ことば10</h2>
-          </div>
-
           <div id="quiz-home" data-quiz-screen="home">
             <section class="card quiz-hero">
               <p class="quiz-hero-title" id="quizHeroTitle">今日も10問、始めましょう。</p>
@@ -792,7 +695,7 @@
               </div>
             </section>
 
-            <section class="home-stats vocab-stats">
+            <section class="home-stats two-col">
               <div class="home-stat-card">
                 <span class="home-stat-label">学習セット</span>
                 <strong id="quizSessionCount">0</strong>
@@ -826,6 +729,10 @@
                 間違えた単語を10問復習する
               </button>
             </section>
+
+            <button type="button" class="ghost quiz-recommend-btn" id="quizManageBtn">
+              単語を管理する
+            </button>
           </div>
 
           <div id="quiz-settings" class="card" data-quiz-screen="settings" hidden>
@@ -938,27 +845,122 @@
               <button type="button" class="ghost" id="quizBackHomeBtn">ホームに戻る</button>
             </div>
           </div>
+
+          <div data-quiz-screen="manage" hidden>
+            <section class="card">
+              <div class="section-head">
+                <div>
+                  <p class="section-label">Vocabulary</p>
+                  <h2>単語を追加</h2>
+                </div>
+              </div>
+
+              <form id="vocabForm">
+                <fieldset class="choice-group">
+                  <legend>言語</legend>
+
+                  <div class="choice-list">
+                    <label class="choice-pill">
+                      <input type="radio" name="vocabLanguage" value="ko" checked />
+                      <span>🇰🇷 韓国語</span>
+                    </label>
+
+                    <label class="choice-pill">
+                      <input type="radio" name="vocabLanguage" value="en" />
+                      <span>🇬🇧 英語</span>
+                    </label>
+                  </div>
+                </fieldset>
+
+                <div class="form-grid">
+                  <label>
+                    単語
+                    <input type="text" id="vocabWord" placeholder="예를 들면" required />
+                  </label>
+
+                  <label>
+                    意味
+                    <input type="text" id="vocabMeaning" placeholder="例えば" />
+                  </label>
+                </div>
+
+                <div class="form-grid">
+                  <label>
+                    読み方（任意）
+                    <input type="text" id="vocabReading" placeholder="ye-reul-deul-myeon" />
+                  </label>
+
+                  <label>
+                    例文（任意）
+                    <input
+                      type="text"
+                      id="vocabExample"
+                      placeholder="예를 들면 저는 사과를 좋아해요。"
+                    />
+                  </label>
+                </div>
+
+                <label class="check">
+                  <input type="checkbox" id="vocabWeak" />
+                  苦手単語としてマーク
+                </label>
+
+                <label class="check">
+                  <input type="checkbox" id="vocabCountToday" checked />
+                  「今日覚えた」に追加する
+                </label>
+
+                <button type="submit" class="primary">＋ 覚えた単語を追加</button>
+              </form>
+            </section>
+
+            <section class="home-stats vocab-stats">
+              <div class="home-stat-card">
+                <span class="home-stat-label">累計語数</span>
+                <strong id="vocabTotalCount">0語</strong>
+              </div>
+
+              <div class="home-stat-card">
+                <span class="home-stat-label">今日覚えた</span>
+                <strong id="vocabTodayCount">0語</strong>
+              </div>
+
+              <div class="home-stat-card">
+                <span class="home-stat-label">苦手単語</span>
+                <strong id="vocabWeakCount">0語</strong>
+              </div>
+            </section>
+
+            <section class="card log-card">
+              <div class="section-head">
+                <div>
+                  <p class="section-label">Words</p>
+                  <h2>単語一覧</h2>
+                </div>
+              </div>
+
+              <div id="vocabList" class="list empty">まだ記録がありません</div>
+            </section>
+
+            <button type="button" class="ghost" id="quizManageBackBtn">戻る</button>
+          </div>
         </section>
       </main>
 
       <nav class="tab-bar">
         <button type="button" class="tab-btn active" data-view="view-home">
-          <span class="tab-icon">🏠</span>
           <span>ホーム</span>
         </button>
 
         <button type="button" class="tab-btn" data-view="view-record">
-          <span class="tab-icon">✏️</span>
           <span>記録</span>
         </button>
 
         <button type="button" class="tab-btn" data-view="view-dashboard">
-          <span class="tab-icon">📊</span>
           <span>ダッシュボード</span>
         </button>
 
         <button type="button" class="tab-btn" data-view="view-quiz">
-          <span class="tab-icon">🈴</span>
           <span>クイズ</span>
         </button>
       </nav>

@@ -90,6 +90,10 @@ alter table public.vocab_words add column if not exists language text not null d
 alter table public.vocab_words add column if not exists reading text;
 alter table public.vocab_words add column if not exists example_sentence text;
 
+-- まとめて単語を登録する場合など、「今日覚えた」集計に含めたくないケースがあるため
+-- learned_at を任意（NULL可）にする。NULLの語は「今日覚えた」にカウントされない
+alter table public.vocab_words alter column learned_at drop not null;
+
 create table if not exists public.vocab_quiz_sessions (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade default auth.uid(),

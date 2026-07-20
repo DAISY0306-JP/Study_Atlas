@@ -326,17 +326,29 @@ function fromApiVocab(row) {
 }
 
 async function fetchVocabWords() {
-  const { data, error } = await window.supabaseClient
-    .from("vocab_words")
-    .select("*")
-    .order("created_at", { ascending: false });
+  const pageSize = 1000;
+  const rows = [];
+  let from = 0;
+  let hasMore = true;
 
-  if (error) {
-    console.error("単語の取得に失敗しました", error);
-    return [];
+  while (hasMore) {
+    const { data, error } = await window.supabaseClient
+      .from("vocab_words")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .range(from, from + pageSize - 1);
+
+    if (error) {
+      console.error("単語の取得に失敗しました", error);
+      return rows.map(fromApiVocab);
+    }
+
+    rows.push(...data);
+    hasMore = data.length === pageSize;
+    from += pageSize;
   }
 
-  return data.map(fromApiVocab);
+  return rows.map(fromApiVocab);
 }
 
 async function createVocabWord(payload) {
@@ -616,7 +628,7 @@ $("vocabForm").addEventListener("submit", async (event) => {
     reading: $("vocabReading").value.trim() || null,
     example_sentence: $("vocabExample").value.trim() || null,
     is_weak: $("vocabWeak").checked,
-    learned_at: fmt(new Date())
+    learned_at: $("vocabCountToday").checked ? fmt(new Date()) : null
   };
 
   try {
@@ -739,8 +751,8 @@ tabButtons.forEach((button) => {
 $("homeRecordBtn")?.addEventListener("click", () => switchTab("view-record"));
 
 $("homeVocabBtn")?.addEventListener("click", () => {
-  switchTab("view-dashboard");
-  document.querySelector('[data-subview="sub-vocab"]')?.click();
+  switchTab("view-quiz");
+  switchQuizScreen("manage");
 });
 
 /* Dashboard sub-tabs (mobile) */
@@ -1087,7 +1099,7 @@ function vocabCard(word) {
       <div class="log-item-header">
         <div class="log-date">
           <span class="log-chip">${word.language === "en" ? "🇬🇧 英語" : "🇰🇷 韓国語"}</span>
-          <span class="log-chip">${escapeHtml(word.learnedAt)}</span>
+          ${word.learnedAt ? `<span class="log-chip">${escapeHtml(word.learnedAt)}</span>` : ""}
           <span class="log-chip">復習${escapeHtml(word.reviewCount)}回</span>
         </div>
 
@@ -1453,6 +1465,10 @@ $("quizRetryBtn")?.addEventListener("click", () => {
 });
 
 $("quizBackHomeBtn")?.addEventListener("click", () => switchQuizScreen("home"));
+
+$("quizManageBtn")?.addEventListener("click", () => switchQuizScreen("manage"));
+
+$("quizManageBackBtn")?.addEventListener("click", () => switchQuizScreen("home"));
 
 /* Streak */
 
