@@ -3,6 +3,9 @@ let mockExams = [];
 let reflections = [];
 let reflectionType = "weekly";
 let vocabWords = [];
+let vocabQuizSessions = [];
+let quizSettings = loadQuizSettings();
+let quizState = null;
 let editingLogId = null;
 let materialChart;
 let skillChart;
@@ -313,6 +316,9 @@ function fromApiVocab(row) {
     id: row.id,
     word: row.word,
     meaning: row.meaning,
+    language: row.language || "ko",
+    reading: row.reading,
+    exampleSentence: row.example_sentence,
     isWeak: row.is_weak,
     reviewCount: row.review_count,
     learnedAt: row.learned_at
@@ -360,6 +366,47 @@ async function deleteVocabWord(id) {
 async function refreshVocabWords() {
   vocabWords = await fetchVocabWords();
   renderVocab();
+  renderQuizHome();
+}
+
+/* Quiz sessions */
+
+function fromApiQuizSession(row) {
+  return {
+    id: row.id,
+    language: row.language,
+    direction: row.direction,
+    totalQuestions: row.total_questions,
+    correctCount: row.correct_count,
+    createdAt: row.created_at
+  };
+}
+
+async function fetchQuizSessions() {
+  const { data, error } = await window.supabaseClient
+    .from("vocab_quiz_sessions")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("クイズ履歴の取得に失敗しました", error);
+    return [];
+  }
+
+  return data.map(fromApiQuizSession);
+}
+
+async function createQuizSession(payload) {
+  const { error } = await window.supabaseClient.from("vocab_quiz_sessions").insert(payload);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+async function refreshQuizSessions() {
+  vocabQuizSessions = await fetchQuizSessions();
+  renderQuizHome();
 }
 
 /* Weak tags */
@@ -565,6 +612,9 @@ $("vocabForm").addEventListener("submit", async (event) => {
   const payload = {
     word: $("vocabWord").value.trim(),
     meaning: $("vocabMeaning").value.trim(),
+    language: document.querySelector('input[name="vocabLanguage"]:checked').value,
+    reading: $("vocabReading").value.trim() || null,
+    example_sentence: $("vocabExample").value.trim() || null,
     is_weak: $("vocabWeak").checked,
     learned_at: fmt(new Date())
   };
@@ -1036,6 +1086,7 @@ function vocabCard(word) {
     <article class="log-item ${word.isWeak ? "needs-review" : ""}">
       <div class="log-item-header">
         <div class="log-date">
+          <span class="log-chip">${word.language === "en" ? "🇬🇧 英語" : "🇰🇷 韓国語"}</span>
           <span class="log-chip">${escapeHtml(word.learnedAt)}</span>
           <span class="log-chip">復習${escapeHtml(word.reviewCount)}回</span>
         </div>
@@ -1090,6 +1141,318 @@ function renderVocab() {
   renderVocabList();
   renderVocabStats();
 }
+
+/* Quiz */
+
+const QUIZ_STORAGE_KEY = "studyAtlasQuizSettings";
+
+const QUIZ_LANGUAGE_LABELS = { ko: "韓国語", en: "英語" };
+
+const QUIZ_DIRECTION_LABELS = {
+  "jp-to-foreign": "日本語 → 外国語",
+  "foreign-to-jp": "外国語 → 日本語",
+  random: "1問ごとにランダム"
+};
+
+function loadQuizSettings() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(QUIZ_STORAGE_KEY));
+    if (saved && QUIZ_LANGUAGE_LABELS[saved.language] && QUIZ_DIRECTION_LABELS[saved.direction]) {
+      return saved;
+    }
+  } catch {
+    // corrupt or missing value, fall through to default
+  }
+
+  return { language: "ko", direction: "jp-to-foreign" };
+}
+
+function saveQuizSettings() {
+  localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(quizSettings));
+}
+
+function shuffle(list) {
+  const result = [...list];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+const quizScreens = document.querySelectorAll("[data-quiz-screen]");
+
+function switchQuizScreen(name) {
+  quizScreens.forEach((el) => {
+    el.hidden = el.dataset.quizScreen !== name;
+  });
+}
+
+function pickDistractors(pool, direction, correctAnswer, count) {
+  const seen = new Set([correctAnswer]);
+  const candidates = [];
+
+  for (const word of shuffle(pool)) {
+    const value = direction === "jp-to-foreign" ? word.word : word.meaning;
+    if (!value || seen.has(value)) continue;
+    seen.add(value);
+    candidates.push(value);
+    if (candidates.length === count) break;
+  }
+
+  return candidates;
+}
+
+function buildQuizQuestions(language, direction, { count = 10, weakOnly = false } = {}) {
+  let pool = vocabWords.filter((word) => word.language === language && word.word && word.meaning);
+  if (weakOnly) pool = pool.filter((word) => word.isWeak);
+  if (pool.length < 4) return [];
+
+  const weak = shuffle(pool.filter((word) => word.isWeak));
+  const rest = shuffle(pool.filter((word) => !word.isWeak));
+  const selected = [...weak, ...rest].slice(0, Math.min(count, pool.length));
+
+  return selected.map((word) => {
+    const questionDirection =
+      direction === "random"
+        ? Math.random() < 0.5
+          ? "jp-to-foreign"
+          : "foreign-to-jp"
+        : direction;
+
+    const prompt = questionDirection === "jp-to-foreign" ? word.meaning : word.word;
+    const correctAnswer = questionDirection === "jp-to-foreign" ? word.word : word.meaning;
+    const distractors = pickDistractors(
+      pool.filter((w) => w.id !== word.id),
+      questionDirection,
+      correctAnswer,
+      3
+    );
+
+    return {
+      wordId: word.id,
+      direction: questionDirection,
+      prompt,
+      correctAnswer,
+      choices: shuffle([correctAnswer, ...distractors]),
+      word: word.word,
+      meaning: word.meaning,
+      reading: word.reading,
+      exampleSentence: word.exampleSentence
+    };
+  });
+}
+
+function startQuiz(language, direction, options = {}) {
+  const questions = buildQuizQuestions(language, direction, options);
+
+  if (!questions.length) {
+    alert(
+      `${QUIZ_LANGUAGE_LABELS[language]}の単語が足りません（4語以上必要です）。単語帳から単語を追加してください。`
+    );
+    return;
+  }
+
+  quizState = { language, direction, questions, index: 0, correctCount: 0, locked: false };
+
+  switchQuizScreen("play");
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion() {
+  const { questions, index, correctCount } = quizState;
+  const question = questions[index];
+
+  $("quizProgressLabel").textContent = `問題 ${index + 1} / ${questions.length}`;
+  $("quizCorrectLabel").textContent = `正解 ${correctCount}`;
+  $("quizProgressFill").style.width = `${(index / questions.length) * 100}%`;
+  $("quizQuestionDirection").textContent = QUIZ_DIRECTION_LABELS[question.direction];
+  $("quizQuestionText").textContent = question.prompt;
+
+  $("quizChoices").innerHTML = question.choices
+    .map(
+      (choice, i) => `
+        <button type="button" class="quiz-choice-btn" data-quiz-choice-index="${i}">
+          ${escapeHtml(choice)}
+        </button>
+      `
+    )
+    .join("");
+
+  $("quizExplanation").hidden = true;
+  quizState.locked = false;
+}
+
+function showQuizExplanation(question) {
+  $("quizExplanationPair").textContent = `${question.word} = ${question.meaning}`;
+  $("quizExplanationReading").hidden = !question.reading;
+  $("quizExplanationReading").textContent = question.reading || "";
+  $("quizExplanationExample").hidden = !question.exampleSentence;
+  $("quizExplanationExample").textContent = question.exampleSentence || "";
+
+  $("quizGoogleSearchLink").href =
+    `https://www.google.com/search?q=${encodeURIComponent(question.word)}`;
+
+  $("quizGoogleTranslateLink").hidden = !question.exampleSentence;
+  if (question.exampleSentence) {
+    $("quizGoogleTranslateLink").href =
+      `https://translate.google.com/?sl=auto&tl=ja&text=${encodeURIComponent(question.exampleSentence)}&op=translate`;
+  }
+
+  $("quizExplanation").hidden = false;
+}
+
+function advanceQuiz() {
+  if (!quizState) return;
+
+  if (quizState.index + 1 >= quizState.questions.length) {
+    finishQuiz();
+    return;
+  }
+
+  quizState.index += 1;
+  renderQuizQuestion();
+}
+
+async function handleQuizAnswer(button) {
+  if (!quizState || quizState.locked) return;
+  quizState.locked = true;
+
+  const question = quizState.questions[quizState.index];
+  const chosenIndex = Number(button.dataset.quizChoiceIndex);
+  const isCorrect = question.choices[chosenIndex] === question.correctAnswer;
+
+  document.querySelectorAll("[data-quiz-choice-index]").forEach((btn) => {
+    btn.disabled = true;
+    const btnIndex = Number(btn.dataset.quizChoiceIndex);
+    if (question.choices[btnIndex] === question.correctAnswer) {
+      btn.classList.add("correct");
+    } else if (btnIndex === chosenIndex) {
+      btn.classList.add("incorrect");
+    }
+  });
+
+  const word = vocabWords.find((w) => w.id === question.wordId);
+
+  try {
+    if (isCorrect) {
+      quizState.correctCount += 1;
+      $("quizCorrectLabel").textContent = `正解 ${quizState.correctCount}`;
+
+      if (word) {
+        await updateVocabWord(word.id, {
+          review_count: word.reviewCount + 1,
+          last_reviewed_at: fmt(new Date())
+        });
+        await refreshVocabWords();
+      }
+
+      window.setTimeout(() => advanceQuiz(), 600);
+    } else {
+      if (word && !word.isWeak) {
+        await updateVocabWord(word.id, { is_weak: true });
+        await refreshVocabWords();
+      }
+
+      showQuizExplanation(question);
+    }
+  } catch (err) {
+    console.error(err);
+    alert("単語の更新に失敗しました。");
+  }
+}
+
+async function finishQuiz() {
+  const { language, direction, questions, correctCount } = quizState;
+
+  $("quizProgressFill").style.width = "100%";
+
+  try {
+    await createQuizSession({
+      language,
+      direction,
+      total_questions: questions.length,
+      correct_count: correctCount
+    });
+    await refreshQuizSessions();
+  } catch (err) {
+    console.error(err);
+    alert("クイズ結果の保存に失敗しました。");
+  }
+
+  const ratio = correctCount / questions.length;
+
+  $("quizResultScore").textContent = `${correctCount} / ${questions.length} 正解`;
+  $("quizResultMessage").textContent =
+    ratio === 1
+      ? "全問正解です！すごい！"
+      : ratio >= 0.7
+        ? "いい調子です！"
+        : "苦手な単語を中心に復習しましょう。";
+
+  quizState = null;
+  switchQuizScreen("result");
+}
+
+function renderQuizHome() {
+  const { language, direction } = quizSettings;
+
+  if ($("quizHeroSub")) {
+    $("quizHeroSub").textContent =
+      `${QUIZ_LANGUAGE_LABELS[language]}・${QUIZ_DIRECTION_LABELS[direction]}`;
+  }
+
+  const totalAnswers = vocabQuizSessions.reduce((sum, s) => sum + s.totalQuestions, 0);
+  const totalCorrect = vocabQuizSessions.reduce((sum, s) => sum + s.correctCount, 0);
+  const accuracy = totalAnswers ? Math.round((totalCorrect / totalAnswers) * 100) : 0;
+  const reviewCount = vocabWords.filter((w) => w.language === language && w.isWeak).length;
+
+  if ($("quizSessionCount")) $("quizSessionCount").textContent = String(vocabQuizSessions.length);
+  if ($("quizAnswerCount")) $("quizAnswerCount").textContent = String(totalAnswers);
+  if ($("quizAccuracy")) $("quizAccuracy").textContent = `${accuracy}%`;
+  if ($("quizReviewCount")) $("quizReviewCount").textContent = String(reviewCount);
+}
+
+$("quizStartBtn")?.addEventListener("click", () => {
+  startQuiz(quizSettings.language, quizSettings.direction);
+});
+
+$("quizSettingsBtn")?.addEventListener("click", () => {
+  const languageInput = document.querySelector(
+    `input[name="quizLanguage"][value="${quizSettings.language}"]`
+  );
+  const directionInput = document.querySelector(
+    `input[name="quizDirection"][value="${quizSettings.direction}"]`
+  );
+  if (languageInput) languageInput.checked = true;
+  if (directionInput) directionInput.checked = true;
+
+  switchQuizScreen("settings");
+});
+
+$("quizSettingsBackBtn")?.addEventListener("click", () => switchQuizScreen("home"));
+
+$("quizSettingsStartBtn")?.addEventListener("click", () => {
+  quizSettings = {
+    language: document.querySelector('input[name="quizLanguage"]:checked').value,
+    direction: document.querySelector('input[name="quizDirection"]:checked').value
+  };
+  saveQuizSettings();
+  renderQuizHome();
+  startQuiz(quizSettings.language, quizSettings.direction);
+});
+
+$("quizWeakStartBtn")?.addEventListener("click", () => {
+  startQuiz(quizSettings.language, quizSettings.direction, { weakOnly: true });
+});
+
+$("quizNextBtn")?.addEventListener("click", () => advanceQuiz());
+
+$("quizRetryBtn")?.addEventListener("click", () => {
+  startQuiz(quizSettings.language, quizSettings.direction);
+});
+
+$("quizBackHomeBtn")?.addEventListener("click", () => switchQuizScreen("home"));
 
 /* Streak */
 
@@ -1305,6 +1668,10 @@ const CLICK_ACTIONS = [
       return updateVocabWord(word.id, { is_weak: !word.isWeak }).then(refreshVocabWords);
     },
     errorMessage: "更新に失敗しました。"
+  },
+  {
+    selector: "[data-quiz-choice-index]",
+    run: (button) => handleQuizAnswer(button)
   }
 ];
 
@@ -1357,14 +1724,24 @@ document.addEventListener("study-atlas:session-changed", async (event) => {
     mockExams = [];
     reflections = [];
     vocabWords = [];
+    vocabQuizSessions = [];
+    quizState = null;
     renderExamHome();
     renderReflectionList();
     renderVocab();
     renderCalendarMonth();
+    switchQuizScreen("home");
+    renderQuizHome();
     return;
   }
 
-  await Promise.all([refreshLogs(), refreshMockExams(), refreshReflections(), refreshVocabWords()]);
+  await Promise.all([
+    refreshLogs(),
+    refreshMockExams(),
+    refreshReflections(),
+    refreshVocabWords(),
+    refreshQuizSessions()
+  ]);
   materialChart?.resize();
   skillChart?.resize();
   weakTagChart?.resize();
@@ -1374,3 +1751,5 @@ document.addEventListener("study-atlas:session-changed", async (event) => {
 
 renderExamHome();
 renderCalendarMonth();
+switchQuizScreen("home");
+renderQuizHome();

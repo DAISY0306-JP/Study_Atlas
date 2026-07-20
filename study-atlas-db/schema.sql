@@ -84,6 +84,22 @@ create table if not exists public.vocab_words (
   created_at timestamptz default now()
 );
 
+-- 「ことば10」クイズ機能：単語帳に言語・読み方・例文を追加し、
+-- クイズセッションの結果を記録するテーブルを用意する
+alter table public.vocab_words add column if not exists language text not null default 'ko' check (language in ('ko', 'en'));
+alter table public.vocab_words add column if not exists reading text;
+alter table public.vocab_words add column if not exists example_sentence text;
+
+create table if not exists public.vocab_quiz_sessions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade default auth.uid(),
+  language text not null check (language in ('ko', 'en')),
+  direction text not null check (direction in ('jp-to-foreign', 'foreign-to-jp', 'random')),
+  total_questions integer not null check (total_questions > 0),
+  correct_count integer not null check (correct_count >= 0),
+  created_at timestamptz default now()
+);
+
 create table if not exists public.ai_notes (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade default auth.uid(),
