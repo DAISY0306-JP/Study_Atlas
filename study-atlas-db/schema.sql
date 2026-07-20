@@ -94,6 +94,9 @@ alter table public.vocab_words add column if not exists example_sentence text;
 -- learned_at を任意（NULL可）にする。NULLの語は「今日覚えた」にカウントされない
 alter table public.vocab_words alter column learned_at drop not null;
 
+-- 苦手フラグとは別に、お気に入り登録できるようにする
+alter table public.vocab_words add column if not exists is_favorite boolean not null default false;
+
 create table if not exists public.vocab_quiz_sessions (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade default auth.uid(),

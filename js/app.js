@@ -1,3 +1,15 @@
+const QUIZ_STORAGE_KEY = "studyAtlasQuizSettings";
+
+const QUIZ_LANGUAGE_LABELS = { ko: "韓国語", en: "英語" };
+
+const QUIZ_DIRECTION_LABELS = {
+  "jp-to-foreign": "日本語 → 外国語",
+  "foreign-to-jp": "外国語 → 日本語",
+  random: "1問ごとにランダム"
+};
+
+const QUIZ_COUNT_OPTIONS = [5, 10, 20, 30];
+
 let logs = [];
 let mockExams = [];
 let reflections = [];
@@ -322,6 +334,7 @@ function fromApiVocab(row) {
     reading: row.reading,
     exampleSentence: row.example_sentence,
     isWeak: row.is_weak,
+    isFavorite: row.is_favorite,
     reviewCount: row.review_count,
     learnedAt: row.learned_at
   };
@@ -338,6 +351,7 @@ async function fetchVocabWords() {
       .from("vocab_words")
       .select("*")
       .order("created_at", { ascending: false })
+      .order("id", { ascending: true })
       .range(from, from + pageSize - 1);
 
     if (error) {
@@ -760,7 +774,9 @@ function switchTab(target) {
 tabButtons.forEach((button) => {
   button.addEventListener("click", () => {
     switchTab(button.dataset.view);
-    if (button.dataset.view === "view-quiz") switchQuizScreen("home");
+    // Don't reset to the quiz hub if a quiz is in progress — that would
+    // silently discard it. Only reset when there's nothing to lose.
+    if (button.dataset.view === "view-quiz" && !quizState) switchQuizScreen("home");
   });
 });
 
@@ -777,7 +793,10 @@ $("homeVocabBtn")?.addEventListener("click", () => {
 function wireSegmentedControl(container, onSwitch) {
   if (!container) return;
 
-  const buttons = container.querySelectorAll(".segment-btn");
+  // Scoped to [data-subview] specifically (not just .segment-btn) because
+  // the reflection weekly/monthly toggle also uses the .segment-btn class
+  // for its own unrelated data-reflection-type buttons in the same container.
+  const buttons = container.querySelectorAll(".segment-btn[data-subview]");
   const subviews = container.querySelectorAll(".dash-subview");
 
   buttons.forEach((button) => {
@@ -1137,7 +1156,7 @@ function vocabCard(word) {
 
       <div class="log-main">
         <span class="log-title">
-          ${escapeHtml(word.word)}${word.meaning ? `・${escapeHtml(word.meaning)}` : ""}
+          ${word.isFavorite ? "⭐ " : ""}${escapeHtml(word.word)}${word.meaning ? `・${escapeHtml(word.meaning)}` : ""}
         </span>
       </div>
 
@@ -1148,6 +1167,10 @@ function vocabCard(word) {
 
         <button type="button" class="ghost" data-toggle-weak-vocab="${escapeHtml(word.id)}">
           ${word.isWeak ? "苦手を解除" : "苦手にする"}
+        </button>
+
+        <button type="button" class="ghost" data-toggle-favorite-vocab="${escapeHtml(word.id)}">
+          ${word.isFavorite ? "★ お気に入り解除" : "☆ お気に入り"}
         </button>
       </div>
     </article>
@@ -1204,27 +1227,22 @@ function renderVocab() {
 
 /* Quiz */
 
-const QUIZ_STORAGE_KEY = "studyAtlasQuizSettings";
-
-const QUIZ_LANGUAGE_LABELS = { ko: "韓国語", en: "英語" };
-
-const QUIZ_DIRECTION_LABELS = {
-  "jp-to-foreign": "日本語 → 外国語",
-  "foreign-to-jp": "外国語 → 日本語",
-  random: "1問ごとにランダム"
-};
-
 function loadQuizSettings() {
   try {
     const saved = JSON.parse(localStorage.getItem(QUIZ_STORAGE_KEY));
-    if (saved && QUIZ_LANGUAGE_LABELS[saved.language] && QUIZ_DIRECTION_LABELS[saved.direction]) {
+    if (
+      saved &&
+      QUIZ_LANGUAGE_LABELS[saved.language] &&
+      QUIZ_DIRECTION_LABELS[saved.direction] &&
+      QUIZ_COUNT_OPTIONS.includes(saved.count)
+    ) {
       return saved;
     }
   } catch {
     // corrupt or missing value, fall through to default
   }
 
-  return { language: "ko", direction: "jp-to-foreign" };
+  return { language: "ko", direction: "jp-to-foreign", count: 10 };
 }
 
 function saveQuizSettings() {
@@ -1241,8 +1259,14 @@ function shuffle(list) {
 }
 
 const quizScreens = document.querySelectorAll("[data-quiz-screen]");
+let quizResultTimeout = null;
 
 function switchQuizScreen(name) {
+  if (quizResultTimeout) {
+    clearTimeout(quizResultTimeout);
+    quizResultTimeout = null;
+  }
+
   quizScreens.forEach((el) => {
     el.hidden = el.dataset.quizScreen !== name;
   });
@@ -1270,9 +1294,13 @@ function buildQuizQuestions(language, direction, { count = 10, weakOnly = false 
 
   const weak = shuffle(pool.filter((word) => word.isWeak));
   const rest = shuffle(pool.filter((word) => !word.isWeak));
-  const selected = [...weak, ...rest].slice(0, Math.min(count, pool.length));
+  const ordered = [...weak, ...rest];
 
-  return selected.map((word) => {
+  const questions = [];
+
+  for (const word of ordered) {
+    if (questions.length === count) break;
+
     const questionDirection =
       direction === "random"
         ? Math.random() < 0.5
@@ -1289,7 +1317,12 @@ function buildQuizQuestions(language, direction, { count = 10, weakOnly = false 
       3
     );
 
-    return {
+    // Skip words that can't produce 3 distinct wrong answers (e.g. many
+    // pool words share the same meaning) rather than showing a quiz with
+    // fewer than 4 choices.
+    if (distractors.length < 3) continue;
+
+    questions.push({
       wordId: word.id,
       direction: questionDirection,
       prompt,
@@ -1299,8 +1332,10 @@ function buildQuizQuestions(language, direction, { count = 10, weakOnly = false 
       meaning: word.meaning,
       reading: word.reading,
       exampleSentence: word.exampleSentence
-    };
-  });
+    });
+  }
+
+  return questions;
 }
 
 function startQuiz(language, direction, options = {}) {
@@ -1423,6 +1458,9 @@ async function handleQuizAnswer(button) {
 }
 
 async function finishQuiz() {
+  if (!quizState || quizState.finishing) return;
+  quizState.finishing = true;
+
   const { language, direction, questions, correctCount } = quizState;
 
   $("quizProgressFill").style.width = "100%";
@@ -1452,6 +1490,7 @@ async function finishQuiz() {
 
   quizState = null;
   switchQuizScreen("result");
+  quizResultTimeout = window.setTimeout(() => switchQuizScreen("home"), 3000);
 }
 
 function renderQuizHome() {
@@ -1474,7 +1513,7 @@ function renderQuizHome() {
 }
 
 $("quizStartBtn")?.addEventListener("click", () => {
-  startQuiz(quizSettings.language, quizSettings.direction);
+  startQuiz(quizSettings.language, quizSettings.direction, { count: quizSettings.count });
 });
 
 $("quizSettingsBtn")?.addEventListener("click", () => {
@@ -1484,8 +1523,10 @@ $("quizSettingsBtn")?.addEventListener("click", () => {
   const directionInput = document.querySelector(
     `input[name="quizDirection"][value="${quizSettings.direction}"]`
   );
+  const countInput = document.querySelector(`input[name="quizCount"][value="${quizSettings.count}"]`);
   if (languageInput) languageInput.checked = true;
   if (directionInput) directionInput.checked = true;
+  if (countInput) countInput.checked = true;
 
   switchQuizScreen("settings");
 });
@@ -1495,21 +1536,25 @@ $("quizSettingsBackBtn")?.addEventListener("click", () => switchQuizScreen("home
 $("quizSettingsStartBtn")?.addEventListener("click", () => {
   quizSettings = {
     language: document.querySelector('input[name="quizLanguage"]:checked').value,
-    direction: document.querySelector('input[name="quizDirection"]:checked').value
+    direction: document.querySelector('input[name="quizDirection"]:checked').value,
+    count: Number(document.querySelector('input[name="quizCount"]:checked').value)
   };
   saveQuizSettings();
   renderQuizHome();
-  startQuiz(quizSettings.language, quizSettings.direction);
+  startQuiz(quizSettings.language, quizSettings.direction, { count: quizSettings.count });
 });
 
 $("quizWeakStartBtn")?.addEventListener("click", () => {
-  startQuiz(quizSettings.language, quizSettings.direction, { weakOnly: true });
+  startQuiz(quizSettings.language, quizSettings.direction, {
+    weakOnly: true,
+    count: quizSettings.count
+  });
 });
 
 $("quizNextBtn")?.addEventListener("click", () => advanceQuiz());
 
 $("quizRetryBtn")?.addEventListener("click", () => {
-  startQuiz(quizSettings.language, quizSettings.direction);
+  startQuiz(quizSettings.language, quizSettings.direction, { count: quizSettings.count });
 });
 
 $("quizBackHomeBtn")?.addEventListener("click", () => switchQuizScreen("home"));
@@ -1726,6 +1771,16 @@ const CLICK_ACTIONS = [
       if (!word) return;
 
       return updateVocabWord(word.id, { is_weak: !word.isWeak }).then(refreshVocabWords);
+    },
+    errorMessage: "更新に失敗しました。"
+  },
+  {
+    selector: "[data-toggle-favorite-vocab]",
+    run: (button) => {
+      const word = vocabWords.find((w) => w.id === button.dataset.toggleFavoriteVocab);
+      if (!word) return;
+
+      return updateVocabWord(word.id, { is_favorite: !word.isFavorite }).then(refreshVocabWords);
     },
     errorMessage: "更新に失敗しました。"
   },
